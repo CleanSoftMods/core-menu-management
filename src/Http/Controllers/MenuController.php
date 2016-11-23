@@ -16,8 +16,6 @@ class MenuController extends BaseAdminController
     {
         parent::__construct();
 
-        $this->middleware('has-permission:view-menus');
-
         $this->repository = $repository;
 
         $this->getDashboardMenu($this->module);
@@ -111,8 +109,6 @@ class MenuController extends BaseAdminController
      */
     public function postUpdateStatus($id, $status)
     {
-        $this->middleware('has-permission:edit-menus');
-
         $data = [
             'status' => $status
         ];
@@ -127,8 +123,6 @@ class MenuController extends BaseAdminController
      */
     public function getCreate()
     {
-        $this->middleware('has-permission:create-menus');
-
         $this->assets
             ->addStylesheets('jquery-nestable')
             ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
@@ -162,8 +156,6 @@ class MenuController extends BaseAdminController
      */
     public function getEdit($id)
     {
-        $this->middleware('has-permission:edit-menus');
-
         $this->assets
             ->addStylesheets('jquery-nestable')
             ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
@@ -207,7 +199,9 @@ class MenuController extends BaseAdminController
         ];
 
         if((int)$id < 1) {
-            $this->middleware('has-permission:create-menus');
+            if(!$this->userRepository->hasPermission($this->loggedInUser, 'create-menus')) {
+                return redirect()->to(route('admin::error', ['code' => 403]));
+            }
 
             $result = $this->repository->createMenu($data);
         } else {
@@ -248,8 +242,6 @@ class MenuController extends BaseAdminController
      */
     public function deleteDelete($id)
     {
-        $this->middleware('has-permission:delete-menus');
-
         $result = $this->repository->delete($id);
 
         do_action('menus.after-delete.delete', $id, $result);
