@@ -12,7 +12,11 @@
         </div>
     </div>
     <div class="box-body">
-        @include('webed-menu::admin._components.checkboxes-list', $data)
+        <div class="scroller height-auto"
+             style="max-height: 300px;"
+             data-rail-visible="1">
+            @include('webed-menu::admin._components.checkboxes-list', $data)
+        </div>
     </div>
     <div class="box-footer text-right">
         <button class="btn btn-primary add-item"

@@ -184,8 +184,8 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
             ->get();
 
         foreach ($nodes as &$node) {
-            $node->model_title = $node->resolved_title;
-            $node->url = $node->resolved_url;
+            $node->model_title = $node->title;
+            $node->url = $node->url;
 
             $node->children = $this->getMenuNodes($menuId, $node->id);
         }

@@ -14,11 +14,11 @@
                         {{ is_menu_item_active($node, array_get($options, 'menu_active.type'), array_get($options, 'menu_active.related_id')) ? 'active' : '' }}
                         {{ $node->children && $node->children->count() > 0 ? 'menu-item-has-children ' . array_get($options, 'menu_active.has_sub_class') : '' }}">
                         <a href="{{ $node->url }}"
-                           title="{{ $node->resolved_title }}">
+                           title="{{ $node->title }}">
                             @if($node->icon_font)
                                 <i class="{{ $node->icon_font }}"></i>
                             @endif
-                            {{ $node->resolved_title }}
+                            {{ $node->title }}
                         </a>
                         @include('webed-menu::front._renderer.menu', [
                             'menuNodes' => $node->children,

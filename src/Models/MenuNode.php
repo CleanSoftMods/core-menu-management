@@ -15,19 +15,30 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
 
     protected $relatedModelInfo = [];
 
-    public function getResolvedTitleAttribute()
+    /**
+     * @param $value
+     * @return mixed|string
+     */
+    public function getTitleAttribute($value)
     {
-        if(!$this->resolveRelatedModel()) {
+        if ($value) {
+            return $value;
+        }
+        if (!$this->resolveRelatedModel()) {
             return '';
         }
 
         return array_get($this->relatedModelInfo, 'model_title');
     }
 
-    public function getResolvedUrlAttribute()
+    /**
+     * @param $value
+     * @return mixed
+     */
+    public function getUrlAttribute($value)
     {
-        if(!$this->resolveRelatedModel()) {
-            return $this->url;
+        if (!$this->resolveRelatedModel()) {
+            return $value;
         }
 
         return array_get($this->relatedModelInfo, 'url');
@@ -35,7 +46,7 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
 
     private function resolveRelatedModel()
     {
-        if($this->type === 'custom-link') {
+        if ($this->type === 'custom-link') {
             return null;
         }
         $this->relatedModelInfo = \MenuManagement::getObjectInfoByType($this->type, $this->related_id);
