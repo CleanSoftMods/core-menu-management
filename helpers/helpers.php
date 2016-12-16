@@ -3,6 +3,16 @@
 use \WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 use \WebEd\Base\Menu\Repositories\MenuRepository;
 
+if (!function_exists('menu_management')) {
+    /**
+     * @return \WebEd\Base\Menu\Support\MenuManagement
+     */
+    function menu_management()
+    {
+        return \WebEd\Base\Menu\Facades\MenuManagementFacade::getFacadeRoot();
+    }
+}
+
 if (!function_exists('webed_menu_render')) {
     /**
      * @param string $alias
