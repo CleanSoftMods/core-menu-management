@@ -3,11 +3,11 @@
 use \WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 use \WebEd\Base\Menu\Repositories\MenuRepository;
 
-if (!function_exists('menu_management')) {
+if (!function_exists('menus_management')) {
     /**
      * @return \WebEd\Base\Menu\Support\MenuManagement
      */
-    function menu_management()
+    function menus_management()
     {
         return \WebEd\Base\Menu\Facades\MenuManagementFacade::getFacadeRoot();
     }
