@@ -33,6 +33,7 @@ class InstallModuleServiceProvider extends ServiceProvider
         acl_permission()
             ->registerPermission('View menus', 'view-menus', $this->module)
             ->registerPermission('Delete menus', 'delete-menus', $this->module)
+            ->registerPermission('Create menus', 'create-menus', $this->module)
             ->registerPermission('Edit menus', 'edit-menus', $this->module);
     }
 }
