@@ -1,7 +1,7 @@
 <?php namespace WebEd\Base\Menu\Http\Controllers;
 
 use WebEd\Base\Core\Http\Controllers\BaseAdminController;
-use WebEd\Base\Core\Support\DataTable\DataTables;
+use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 use WebEd\Base\Menu\Repositories\MenuRepository;
 
@@ -23,12 +23,11 @@ class MenuController extends BaseAdminController
         $this->breadcrumbs->addLink('Menus', 'admin::menus.index.get');
     }
 
-    public function getIndex()
+    public function getIndex(MenusListDataTable $menusListDataTable)
     {
-        $this->assets
-            ->addJavascripts('jquery-datatables');
-
         $this->setPageTitle('Menus management');
+
+        $this->dis['dataTable'] = $menusListDataTable->run();
 
         $this->dis['dataTableColumns'] = [
             'headings' => [
@@ -40,65 +39,12 @@ class MenuController extends BaseAdminController
             ],
         ];
 
-        $this->dis['dataTableHeadings'] = json_encode([
-            ['data' => 'title', 'name' => 'title'],
-            ['data' => 'slug', 'name' => 'alias'],
-            ['data' => 'status', 'name' => 'status'],
-            ['data' => 'created_at', 'name' => 'created_at', 'searchable' => false],
-            ['data' => 'actions', 'name' => 'actions', 'searchable' => false, 'orderable' => false],
-        ]);
-
         return do_filter('menus.index.get', $this)->viewAdmin('list');
     }
 
-    public function postListing(DataTables $dataTable)
+    public function postListing(MenusListDataTable $menusListDataTable)
     {
-        $data = $dataTable
-            ->of($this->repository)
-            ->editColumn('status', function ($item) {
-                return \Html::label($item->status, $item->status);
-            })
-            ->addColumn('actions', function ($item) {
-                /*Edit link*/
-                $activeLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 'activated']);
-                $disableLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 'disabled']);
-                $deleteLink = route('admin::menus.delete.delete', ['id' => $item->id]);
-
-                /*Buttons*/
-                $editBtn = link_to(route('admin::menus.edit.get', ['id' => $item->id]), 'Edit', ['class' => 'btn btn-sm btn-outline green']);
-
-                $activeBtn = ($item->status != 'activated') ? \Form::button('Active', [
-                    'title' => 'Active this item',
-                    'data-ajax' => $activeLink,
-                    'data-method' => 'POST',
-                    'data-toggle' => 'confirmation',
-                    'class' => 'btn btn-outline blue btn-sm ajax-link',
-                    'type' => 'button',
-                ]) : '';
-
-                $disableBtn = ($item->status != 'disabled') ? \Form::button('Disable', [
-                    'title' => 'Disable this item',
-                    'data-ajax' => $disableLink,
-                    'data-method' => 'POST',
-                    'data-toggle' => 'confirmation',
-                    'class' => 'btn btn-outline yellow-lemon btn-sm ajax-link',
-                    'type' => 'button',
-                ]) : '';
-
-                $deleteBtn = \Form::button('Delete', [
-                    'title' => 'Delete this item',
-                    'data-ajax' => $deleteLink,
-                    'data-method' => 'DELETE',
-                    'data-toggle' => 'confirmation',
-                    'class' => 'btn btn-outline red-sunglo btn-sm ajax-link',
-                    'type' => 'button',
-                ]);
-
-                return $editBtn . $activeBtn . $disableBtn . $deleteBtn;
-            });
-
-        return do_filter('datatables.menu.index.post', $data, $this)
-            ->make(true);
+        return do_filter('datatables.menu.index.post', $menusListDataTable, $this);
     }
 
     /**
@@ -162,6 +108,8 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
+        $id = do_filter('menus.before-edit.get', $id);
+
         $item = $this->repository->getMenu($id);
         if (!$item) {
             $this->flashMessagesHelper
@@ -205,6 +153,8 @@ class MenuController extends BaseAdminController
 
             $result = $this->repository->createMenu($data);
         } else {
+            $id = do_filter('menus.before-edit.post', $id);
+
             $result = $this->repository->updateMenu($id, $data);
         }
 
@@ -242,6 +192,8 @@ class MenuController extends BaseAdminController
      */
     public function deleteDelete($id)
     {
+        $id = do_filter('menus.before-delete.delete', $id);
+
         $result = $this->repository->delete($id);
 
         do_action('menus.after-delete.delete', $id, $result);

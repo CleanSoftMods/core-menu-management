@@ -102,7 +102,7 @@
                     </button>
                 </div>
             </div>
-            {!! MenuManagement::renderWidgets() !!}
+            {!! menus_management()->renderWidgets() !!}
             @php do_action('meta_boxes', 'bottom-sidebar', 'menu', $object) @endphp
         </div>
         <div class="column main">
