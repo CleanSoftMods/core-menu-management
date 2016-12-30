@@ -30,15 +30,6 @@ interface MenuRepositoryContract
     public function updateMenuStructure($menuId, $menuStructure, array &$messages);
 
     /**
-     * $messages
-     * @param $menuId
-     * @param $node
-     * @param array $messages
-     * @param null $parentId
-     */
-    public function updateMenuNode($menuId, $node, $order, array &$messages, $parentId = null);
-
-    /**
      * Get menu
      * @param $id
      * @return mixed|null|MenuModelContract

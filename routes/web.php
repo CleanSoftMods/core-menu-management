@@ -33,6 +33,10 @@ $router->group(['prefix' => $adminRoute . '/' . $moduleRoute], function (Router 
         ->name('admin::menus.create.get')
         ->middleware('has-permission:create-menus');
 
+    $router->post('create', 'MenuController@postCreate')
+        ->name('admin::menus.create.post')
+        ->middleware('has-permission:create-menus');
+
     $router->get('edit/{id}', 'MenuController@getEdit')
         ->name('admin::menus.edit.get')
         ->middleware('has-permission:edit-menus');

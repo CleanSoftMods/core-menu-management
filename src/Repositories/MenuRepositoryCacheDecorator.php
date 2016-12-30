@@ -42,18 +42,6 @@ class MenuRepositoryCacheDecorator extends AbstractRepositoryCacheDecorator  imp
     }
 
     /**
-     * $messages
-     * @param $menuId
-     * @param $node
-     * @param array $messages
-     * @param null $parentId
-     */
-    public function updateMenuNode($menuId, $node, $order, array &$messages, $parentId = null)
-    {
-        return $this->afterUpdate(__FUNCTION__, func_get_args());
-    }
-
-    /**
      * Get menu
      * @param $id
      * @return mixed|null|MenuModelContract

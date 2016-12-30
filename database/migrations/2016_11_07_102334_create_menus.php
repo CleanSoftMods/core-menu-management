@@ -37,6 +37,7 @@ class CreateMenus extends Migration
             $table->string('title', 255)->nullable();
             $table->string('icon_font', 255)->nullable();
             $table->string('css_class', 255)->nullable();
+            $table->string('target', 255)->nullable();
             $table->integer('sort_order')->unsigned()->default(0);
 
             $table->timestamps();

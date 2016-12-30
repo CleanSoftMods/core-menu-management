@@ -14,15 +14,14 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
         'title' => 'string|max:255|required',
         'slug' => 'string|max:255|alpha_dash|required',
         'status' => 'string|required|in:activated,disabled',
-        'sort_order' => 'integer|min:0',
+        'created_by' => 'integer|min:0|nullable',
+        'updated_by' => 'integer|min:0|nullable',
     ];
 
     protected $editableFields = [
         'title',
         'slug',
         'status',
-        'created_at',
-        'updated_at',
         'created_by',
         'updated_by',
     ];
@@ -95,46 +94,7 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
         }
 
         foreach ($menuStructure as $order => $node) {
-            $this->updateMenuNode($menuId, $node, $order, $messages);
-        }
-    }
-
-    /**
-     * $messages
-     * @param $menuId
-     * @param $node
-     * @param array $messages
-     * @param null $parentId
-     */
-    public function updateMenuNode($menuId, $node, $order, array &$messages, $parentId = null)
-    {
-        $result = $this->menuNodeRepository->editWithValidate(array_get($node, 'id'), [
-            'menu_id' => $menuId,
-            'parent_id' => $parentId,
-            'related_id' => array_get($node, 'related_id') ?: null,
-            'type' => array_get($node, 'type'),
-            'title' => array_get($node, 'title'),
-            'icon_font' => array_get($node, 'icon_font'),
-            'css_class' => array_get($node, 'css_class'),
-            'url' => array_get($node, 'url'),
-            'sort_order' => $order,
-        ], true, true);
-
-        /**
-         * Add messages when some error occurred
-         */
-        if($result['error']) {
-            $messages = array_merge($messages, $result['messages']);
-        }
-
-        $children = array_get($node, 'children', null);
-        /**
-         * Save the children
-         */
-        if(!$result['error'] && is_array($children)) {
-            foreach ($children as $key => $child) {
-                $this->updateMenuNode($menuId, $child, $key, $messages, $result['data']->id);
-            }
+            $this->menuNodeRepository->updateMenuNode($menuId, $node, $order, $messages);
         }
     }
 
@@ -180,7 +140,7 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
             ->orderBy('sort_order', 'ASC')
             ->where('menu_id', '=', $menuId->id)
             ->where('parent_id', '=', $parentId)
-            ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class')
+            ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
             ->get();
 
         foreach ($nodes as &$node) {

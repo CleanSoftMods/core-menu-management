@@ -23,6 +23,7 @@
                         {{ $isMenuItemActive ? 'active' : '' }}
                         {{ $node->children && $node->children->count() > 0 ? 'menu-item-has-children ' . array_get($options, 'menu_active.has_sub_class') : '' }}">
                         <a href="{{ $node->url }}"
+                           @if($node->target) target="{{ $node->target }}" @endif
                            title="{{ $node->title }}">
                             @if($node->icon_font)
                                 <i class="{{ $node->icon_font }}"></i>

@@ -31,6 +31,7 @@
           font-weight: 700;
           font-size: 13px;
           padding-right: 10px; }
+        .dd-item > .item-details .fields > label select,
         .dd-item > .item-details .fields > label input[type="text"] {
           display: table-cell;
           width: 100%;

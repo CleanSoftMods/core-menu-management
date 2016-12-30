@@ -2,6 +2,8 @@
 
 use WebEd\Base\Core\Http\Controllers\BaseAdminController;
 use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
+use WebEd\Base\Menu\Http\Requests\CreateMenuRequest;
+use WebEd\Base\Menu\Http\Requests\UpdateMenuRequest;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 use WebEd\Base\Menu\Repositories\MenuRepository;
 
@@ -28,16 +30,6 @@ class MenuController extends BaseAdminController
         $this->setPageTitle('Menus management');
 
         $this->dis['dataTable'] = $menusListDataTable->run();
-
-        $this->dis['dataTableColumns'] = [
-            'headings' => [
-                ['name' => 'Title', 'width' => '25%'],
-                ['name' => 'Alias', 'width' => '25%'],
-                ['name' => 'Status', 'width' => '15%'],
-                ['name' => 'Created at', 'width' => '15%'],
-                ['name' => 'Actions', 'width' => '20%'],
-            ],
-        ];
 
         return do_filter('menus.index.get', $this)->viewAdmin('list');
     }
@@ -92,7 +84,40 @@ class MenuController extends BaseAdminController
             }
         }
 
-        return do_filter('menus.create.get', $this)->viewAdmin('edit');
+        return do_filter('menus.create.get', $this)->viewAdmin('create');
+    }
+
+    public function postCreate(CreateMenuRequest $request)
+    {
+        $data = [
+            'menu_structure' => $request->get('menu_structure'),
+            'deleted_nodes' => $request->get('deleted_nodes'),
+            'status' => $request->get('status'),
+            'title' => $request->get('title'),
+            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
+            'updated_by' => $this->loggedInUser->id,
+            'created_by' => $this->loggedInUser->id,
+        ];
+
+        $result = $this->repository->createMenu($data);
+
+        $msgType = $result['error'] ? 'danger' : 'success';
+
+        $this->flashMessagesHelper
+            ->addMessages($result['messages'], $msgType)
+            ->showMessagesOnSession();
+
+        if($result['error']) {
+            return redirect()->back()->withInput();
+        }
+
+        do_action('menus.after-create.post', $result['data']->id, $result, $this);
+
+        if ($request->has('_continue_edit')) {
+            return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']->id]));
+        }
+
+        return redirect()->to(route('admin::menus.index.get'));
     }
 
     /**
@@ -102,12 +127,6 @@ class MenuController extends BaseAdminController
      */
     public function getEdit($id)
     {
-        $this->assets
-            ->addStylesheets('jquery-nestable')
-            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
-            ->addJavascripts('jquery-nestable')
-            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
-
         $id = do_filter('menus.before-edit.get', $id);
 
         $item = $this->repository->getMenu($id);
@@ -118,6 +137,12 @@ class MenuController extends BaseAdminController
 
             return redirect()->back();
         }
+
+        $this->assets
+            ->addStylesheets('jquery-nestable')
+            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
+            ->addJavascripts('jquery-nestable')
+            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
         $this->setPageTitle('Edit menu', $item->title);
         $this->breadcrumbs->addLink('Edit menu');
@@ -130,33 +155,29 @@ class MenuController extends BaseAdminController
         return do_filter('menus.edit.get', $this, $id)->viewAdmin('edit');
     }
 
-    /**
-     * Handle edit menu
-     * @param null $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function postEdit($id = null)
+    public function postEdit(UpdateMenuRequest $request, $id)
     {
+        $id = do_filter('menus.before-edit.post', $id);
+
+        $item = $this->repository->getMenu($id);
+        if (!$item) {
+            $this->flashMessagesHelper
+                ->addMessages('This menu not exists', 'danger')
+                ->showMessagesOnSession();
+
+            return redirect()->back();
+        }
+
         $data = [
-            'menu_structure' => $this->request->get('menu_structure'),
-            'deleted_nodes' => $this->request->get('deleted_nodes'),
-            'status' => $this->request->get('status'),
-            'title' => $this->request->get('title'),
-            'slug' => ($this->request->get('slug') ? str_slug($this->request->get('slug')) : str_slug($this->request->get('title'))),
+            'menu_structure' => $request->get('menu_structure'),
+            'deleted_nodes' => $request->get('deleted_nodes'),
+            'status' => $request->get('status'),
+            'title' => $request->get('title'),
+            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
             'updated_by' => $this->loggedInUser->id,
         ];
 
-        if((int)$id < 1) {
-            if(!$this->userRepository->hasPermission($this->loggedInUser, 'create-menus')) {
-                return redirect()->to(route('admin::error', ['code' => 403]));
-            }
-
-            $result = $this->repository->createMenu($data);
-        } else {
-            $id = do_filter('menus.before-edit.post', $id);
-
-            $result = $this->repository->updateMenu($id, $data);
-        }
+        $result = $this->repository->updateMenu($id, $data);
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
@@ -165,20 +186,12 @@ class MenuController extends BaseAdminController
             ->showMessagesOnSession();
 
         if($result['error']) {
-            if((int)$id < 1) {
-                return redirect()->back()->withInput();
-            }
             return redirect()->back();
         }
 
         do_action('menus.after-edit.post', $id, $result, $this);
 
-        if ($this->request->has('_continue_edit')) {
-            if (!(int)$id) {
-                if (!$result['error']) {
-                    return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']->id]));
-                }
-            }
+        if ($request->has('_continue_edit')) {
             return redirect()->back();
         }
 

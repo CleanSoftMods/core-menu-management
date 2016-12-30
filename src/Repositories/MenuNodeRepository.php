@@ -14,4 +14,44 @@ class MenuNodeRepository extends AbstractBaseRepository implements MenuNodeRepos
     protected $editableFields = [
         '*',
     ];
+
+    /**
+     * $messages
+     * @param $menuId
+     * @param $node
+     * @param array $messages
+     * @param null $parentId
+     */
+    public function updateMenuNode($menuId, $node, $order, array &$messages, $parentId = null)
+    {
+        $result = $this->editWithValidate(array_get($node, 'id'), [
+            'menu_id' => $menuId,
+            'parent_id' => $parentId,
+            'related_id' => array_get($node, 'related_id') ?: null,
+            'type' => array_get($node, 'type'),
+            'title' => array_get($node, 'title'),
+            'icon_font' => array_get($node, 'icon_font'),
+            'css_class' => array_get($node, 'css_class'),
+            'target' => array_get($node, 'target'),
+            'url' => array_get($node, 'url'),
+            'sort_order' => $order,
+        ], true, true);
+
+        /**
+         * Add messages when some error occurred
+         */
+        if($result['error']) {
+            $messages = array_merge($messages, $result['messages']);
+        }
+
+        $children = array_get($node, 'children', null);
+        /**
+         * Save the children
+         */
+        if(!$result['error'] && is_array($children)) {
+            foreach ($children as $key => $child) {
+                $this->updateMenuNode($menuId, $child, $key, $messages, $result['data']->id);
+            }
+        }
+    }
 }
