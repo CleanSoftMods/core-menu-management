@@ -127,8 +127,6 @@ class MenuController extends BaseAdminController
      */
     public function getEdit($id)
     {
-        $id = do_filter('menus.before-edit.get', $id);
-
         $item = $this->repository->getMenu($id);
         if (!$item) {
             $this->flashMessagesHelper
@@ -137,6 +135,8 @@ class MenuController extends BaseAdminController
 
             return redirect()->back();
         }
+
+        $item = do_filter('menus.before-edit.get', $item);
 
         $this->assets
             ->addStylesheets('jquery-nestable')
@@ -157,8 +157,6 @@ class MenuController extends BaseAdminController
 
     public function postEdit(UpdateMenuRequest $request, $id)
     {
-        $id = do_filter('menus.before-edit.post', $id);
-
         $item = $this->repository->getMenu($id);
         if (!$item) {
             $this->flashMessagesHelper
@@ -167,6 +165,8 @@ class MenuController extends BaseAdminController
 
             return redirect()->back();
         }
+
+        $item = do_filter('menus.before-edit.get', $item);
 
         $data = [
             'menu_structure' => $request->get('menu_structure'),
@@ -177,7 +177,7 @@ class MenuController extends BaseAdminController
             'updated_by' => $this->loggedInUser->id,
         ];
 
-        $result = $this->repository->updateMenu($id, $data);
+        $result = $this->repository->updateMenu($item, $data);
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
