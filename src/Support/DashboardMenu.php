@@ -1,6 +1,7 @@
 <?php namespace WebEd\Base\Menu\Support;
 
 use Illuminate\Support\Collection;
+use WebEd\Base\Users\Models\User;
 
 class DashboardMenu
 {
@@ -15,6 +16,24 @@ class DashboardMenu
      * @var array
      */
     protected $active = [];
+
+    /**
+     * @var User
+     */
+    protected $loggedInUser;
+
+    /**
+     * @var string
+     */
+    protected $builtHtml;
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user)
+    {
+        $this->loggedInUser = $user;
+    }
 
     /**
      * Add link
@@ -35,7 +54,8 @@ class DashboardMenu
             'font_icon' => null,
             'link' => null,
             'css-class' => null,
-            'children' => []
+            'children' => [],
+            'permissions' => [],
         ];
         $options = array_merge($defaultOptions, $options);
         $id = $options['id'];
@@ -63,7 +83,7 @@ class DashboardMenu
      * Rearrange links
      * @return Collection
      */
-    private function rearrangeLinks()
+    protected function rearrangeLinks()
     {
         $links = $this->getChildren();
         $links = collect($links)->sortBy('piority');
@@ -75,7 +95,7 @@ class DashboardMenu
      * @param null $id
      * @return Collection
      */
-    private function getChildren($id = null)
+    protected function getChildren($id = null)
     {
         $children = collect([]);
         foreach ($this->links as $key => $row) {
@@ -91,12 +111,12 @@ class DashboardMenu
      * Get activated items
      * @param $active
      */
-    private function getActiveItems($active)
+    protected function setActiveItems($active)
     {
         foreach ($this->links as $key => $row) {
             if ($row['id'] == $active) {
                 $this->active[] = $active;
-                $this->getActiveItems($row['parent_id']);
+                $this->setActiveItems($row['parent_id']);
             }
         }
     }
@@ -108,20 +128,25 @@ class DashboardMenu
      * @throws \Exception
      * @throws \Throwable
      */
-    public function render($active = null)
+    public function setActiveItem($active = null)
+    {
+        $this->setActiveItems($active);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function render()
     {
         $links = $this->rearrangeLinks();
-        $this->getActiveItems($active);
-
-        $htmlSrc = view('webed-menu::admin.dashboard-menu.menu', [
+        return view('webed-menu::admin.dashboard-menu.menu', [
             'isChildren' => false,
             'links' => $links,
             'level' => 0,
             'active' => $this->active,
+            'loggedInUser' => $this->loggedInUser
         ])->render();
-        view()->share([
-            'CMSDashboardMenu' => $htmlSrc
-        ]);
-        return $htmlSrc;
     }
 }

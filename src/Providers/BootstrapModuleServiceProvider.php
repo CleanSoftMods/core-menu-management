@@ -42,6 +42,7 @@ class BootstrapModuleServiceProvider extends ServiceProvider
             'font_icon' => 'fa fa-bars',
             'link' => route('admin::menus.index.get'),
             'css_class' => null,
+            'permissions' => ['view-menus']
         ]);
     }
 }
