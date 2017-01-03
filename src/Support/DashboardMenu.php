@@ -47,7 +47,7 @@ class DashboardMenu
         }
         $defaultOptions = [
             'id' => null,
-            'piority' => 99,
+            'priority' => 99,
             'parent_id' => null,
             'heading' => null,
             'title' => null,
@@ -86,7 +86,7 @@ class DashboardMenu
     protected function rearrangeLinks()
     {
         $links = $this->getChildren();
-        $links = collect($links)->sortBy('piority');
+        $links = collect($links)->sortBy('priority');
         return $links;
     }
 
@@ -104,7 +104,7 @@ class DashboardMenu
                 $children->push($row);
             }
         }
-        return $children->sortBy('piority');
+        return $children->sortBy('priority');
     }
 
     /**
