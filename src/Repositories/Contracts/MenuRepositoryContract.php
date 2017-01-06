@@ -19,15 +19,14 @@ interface MenuRepositoryContract
      * @param bool $justUpdateSomeFields
      * @return array
      */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = false);
+    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true);
 
     /**
      * Update menu structure
      * @param $menuId
      * @param $menuStructure
-     * @param array $messages
      */
-    public function updateMenuStructure($menuId, $menuStructure, array &$messages);
+    public function updateMenuStructure($menuId, $menuStructure);
 
     /**
      * Get menu

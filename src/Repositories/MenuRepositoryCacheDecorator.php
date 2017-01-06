@@ -25,7 +25,7 @@ class MenuRepositoryCacheDecorator extends AbstractRepositoryCacheDecorator  imp
      * @param bool $justUpdateSomeFields
      * @return array
      */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = false)
+    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true)
     {
         return $this->afterUpdate(__FUNCTION__, func_get_args());
     }
@@ -34,9 +34,8 @@ class MenuRepositoryCacheDecorator extends AbstractRepositoryCacheDecorator  imp
      * Update menu structure
      * @param $menuId
      * @param $menuStructure
-     * @param array $messages
      */
-    public function updateMenuStructure($menuId, $menuStructure, array &$messages)
+    public function updateMenuStructure($menuId, $menuStructure)
     {
         return $this->afterUpdate(__FUNCTION__, func_get_args());
     }

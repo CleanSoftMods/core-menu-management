@@ -19,10 +19,9 @@ class MenuNodeRepository extends AbstractBaseRepository implements MenuNodeRepos
      * $messages
      * @param $menuId
      * @param $node
-     * @param array $messages
      * @param null $parentId
      */
-    public function updateMenuNode($menuId, $node, $order, array &$messages, $parentId = null)
+    public function updateMenuNode($menuId, $node, $order, $parentId = null)
     {
         $result = $this->editWithValidate(array_get($node, 'id'), [
             'menu_id' => $menuId,
@@ -41,7 +40,8 @@ class MenuNodeRepository extends AbstractBaseRepository implements MenuNodeRepos
          * Add messages when some error occurred
          */
         if($result['error']) {
-            $messages = array_merge($messages, $result['messages']);
+            flash_messages()->addMessages($result['messages'], 'danger');
+            return;
         }
 
         $children = array_get($node, 'children', null);
@@ -50,7 +50,7 @@ class MenuNodeRepository extends AbstractBaseRepository implements MenuNodeRepos
          */
         if(!$result['error'] && is_array($children)) {
             foreach ($children as $key => $child) {
-                $this->updateMenuNode($menuId, $child, $key, $messages, $result['data']->id);
+                $this->updateMenuNode($menuId, $child, $key, $result['data']->id);
             }
         }
     }

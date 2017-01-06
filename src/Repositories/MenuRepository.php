@@ -27,7 +27,7 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
     ];
 
     /**
-     * @var MenuNodeRepository
+     * @var MenuNodeRepository|MenuNodeRepositoryCacheDecorator
      */
     protected $menuNodeRepository;
 
@@ -68,15 +68,11 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
 
         $result = $this->editWithValidate($id, $data, $allowCreateNew, $justUpdateSomeFields);
 
-        if ($result['error']) {
+        if ($result['error'] || !$menuStructure) {
             return $result;
         }
 
-        if (!$menuStructure) {
-            return $result;
-        }
-
-        $this->updateMenuStructure($result['data']->id, $menuStructure, $result['messages']);
+        $this->updateMenuStructure($result['data']->id, $menuStructure);
 
         return $result;
     }
@@ -85,16 +81,15 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
      * Update menu structure
      * @param $menuId
      * @param $menuStructure
-     * @param array $messages
      */
-    public function updateMenuStructure($menuId, $menuStructure, array &$messages)
+    public function updateMenuStructure($menuId, $menuStructure)
     {
         if (!is_array($menuStructure)) {
             $menuStructure = json_decode($menuStructure, true);
         }
 
         foreach ($menuStructure as $order => $node) {
-            $this->menuNodeRepository->updateMenuNode($menuId, $node, $order, $messages);
+            $this->menuNodeRepository->updateMenuNode($menuId, $node, $order);
         }
     }
 
@@ -145,8 +140,6 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
 
         foreach ($nodes as &$node) {
             $node->model_title = $node->title;
-            $node->url = $node->url;
-
             $node->children = $this->getMenuNodes($menuId, $node->id);
         }
 

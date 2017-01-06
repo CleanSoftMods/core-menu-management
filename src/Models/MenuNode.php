@@ -49,7 +49,7 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
         if ($this->type === 'custom-link') {
             return null;
         }
-        $this->relatedModelInfo = \MenuManagement::getObjectInfoByType($this->type, $this->related_id);
+        $this->relatedModelInfo = menus_management()->getObjectInfoByType($this->type, $this->related_id);
 
         return $this->relatedModelInfo;
     }
