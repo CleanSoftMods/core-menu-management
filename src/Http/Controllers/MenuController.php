@@ -157,7 +157,7 @@ class MenuController extends BaseAdminController
 
     public function postEdit(UpdateMenuRequest $request, $id)
     {
-        $item = $this->repository->getMenu($id);
+        $item = $this->repository->find($id);
         if (!$item) {
             $this->flashMessagesHelper
                 ->addMessages('This menu not exists', 'danger')

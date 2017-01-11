@@ -11,5 +11,5 @@ class Menu extends BaseModel implements MenuModelContract
 
     protected $fillable = [];
 
-    public $timestamps = false;
+    public $timestamps = true;
 }
