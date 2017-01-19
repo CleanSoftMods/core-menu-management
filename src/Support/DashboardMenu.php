@@ -80,6 +80,17 @@ class DashboardMenu
     }
 
     /**
+     * @param $id
+     * @return $this
+     */
+    public function removeItem($id)
+    {
+        array_forget($this->links, $id);
+
+        return $this;
+    }
+
+    /**
      * Rearrange links
      * @return Collection
      */
