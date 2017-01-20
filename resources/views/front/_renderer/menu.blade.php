@@ -21,7 +21,7 @@
                     <li class="menu-item
                         {{ in_array((int)$node->id, $childActivatedNodes) ? 'current-parent-menu-item' : '' }}
                         {{ $isMenuItemActive ? 'active' : '' }}
-                        {{ $node->children && $node->children->count() > 0 ? 'menu-item-has-children ' . array_get($options, 'menu_active.has_sub_class') : '' }}">
+                        {{ $node->children && $node->children->count() > 0 ? 'menu-item-has-children ' . array_get($options, 'has_sub_class') : '' }}">
                         <a href="{{ $node->url }}"
                            @if($node->target) target="{{ $node->target }}" @endif
                            title="{{ $node->title }}">
