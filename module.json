@@ -4,6 +4,5 @@
     "author": "Tedozi Manson",
     "description": "WebEd menu management package.",
     "namespace": "WebEd\\Base\\Menu",
-    "version": "2.0.10",
     "autoload": "psr-4"
 }

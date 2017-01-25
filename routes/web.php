@@ -1,10 +1,6 @@
-<?php use Illuminate\Routing\Router;
-
-/**
- *
- * @var Router $router
- *
- */
+<?php
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Route;
 
 $adminRoute = config('webed.admin_route');
 
@@ -13,7 +9,7 @@ $moduleRoute = 'menus';
 /**
  * Admin routes
  */
-$router->group(['prefix' => $adminRoute . '/' . $moduleRoute], function (Router $router) use ($adminRoute, $moduleRoute) {
+Route::group(['prefix' => $adminRoute . '/' . $moduleRoute], function (Router $router) use ($adminRoute, $moduleRoute) {
     /**
      * Put some route here
      */
