@@ -35,7 +35,7 @@ Route::group(['prefix' => $adminRoute . '/' . $moduleRoute], function (Router $r
 
     $router->get('edit/{id}', 'MenuController@getEdit')
         ->name('admin::menus.edit.get')
-        ->middleware('has-permission:edit-menus');
+        ->middleware('has-permission:view-menus');
 
     $router->post('edit/{id}', 'MenuController@postEdit')
         ->name('admin::menus.edit.post')
