@@ -1,11 +1,11 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
-use WebEd\Base\Caching\Repositories\AbstractRepositoryCacheDecorator;
+use WebEd\Base\Caching\Repositories\Eloquent\EloquentBaseRepositoryCacheDecorator;
 
 use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 
-class MenuRepositoryCacheDecorator extends AbstractRepositoryCacheDecorator  implements MenuRepositoryContract
+class MenuRepositoryCacheDecorator extends EloquentBaseRepositoryCacheDecorator  implements MenuRepositoryContract
 {
     /**
      * Create menu

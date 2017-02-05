@@ -76,7 +76,7 @@
             @php do_action('meta_boxes', 'bottom-sidebar', 'menus.create', $object) @endphp
         </div>
         <div class="column main">
-            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate', 'url' => route('admin::menus.edit.post', ['id' => $currentId])]) !!}
+            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate', 'url' => route('admin::menus.edit.post', ['id' => $object->id])]) !!}
             <textarea name="menu_structure"
                       id="menu_structure"
                       class="hidden"

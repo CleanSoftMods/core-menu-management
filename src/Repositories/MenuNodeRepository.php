@@ -1,12 +1,15 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
-use WebEd\Base\Core\Repositories\AbstractBaseRepository;
+use WebEd\Base\Caching\Services\Traits\Cacheable;
+use WebEd\Base\Core\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
 
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 
-class MenuNodeRepository extends AbstractBaseRepository implements MenuNodeRepositoryContract, CacheableContract
+class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepositoryContract, CacheableContract
 {
+    use Cacheable;
+
     protected $rules = [
 
     ];

@@ -1,22 +1,15 @@
 <?php namespace WebEd\Base\Menu\Http\DataTables;
 
 use WebEd\Base\Core\Http\DataTables\AbstractDataTables;
-use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
-use WebEd\Base\Menu\Repositories\MenuRepository;
+use WebEd\Base\Menu\Models\Menu;
 
 class MenusListDataTable extends AbstractDataTables
 {
-    protected $repository;
+    protected $model;
 
-    /**
-     * MenusListDataTable constructor.
-     * @param MenuRepository $repository
-     */
-    public function __construct(MenuRepositoryContract $repository)
+    public function __construct()
     {
-        $this->repository = $repository;
-
-        $this->repository->select('id', 'created_at', 'title', 'slug', 'status');
+        $this->model = Menu::select('id', 'created_at', 'title', 'slug', 'status');
 
         parent::__construct();
     }
@@ -37,7 +30,7 @@ class MenusListDataTable extends AbstractDataTables
 
         $this->setColumns([
             ['data' => 'title', 'name' => 'title'],
-            ['data' => 'slug', 'name' => 'alias'],
+            ['data' => 'slug', 'name' => 'slug'],
             ['data' => 'status', 'name' => 'status'],
             ['data' => 'created_at', 'name' => 'created_at', 'searchable' => false],
             ['data' => 'actions', 'name' => 'actions', 'searchable' => false, 'orderable' => false],
@@ -51,9 +44,9 @@ class MenusListDataTable extends AbstractDataTables
      */
     protected function fetch()
     {
-        $this->fetch = datatable()->of($this->repository)
+        $this->fetch = datatable()->of($this->model)
             ->editColumn('status', function ($item) {
-                return \Html::label($item->status, $item->status);
+                return html()->label($item->status, $item->status);
             })
             ->addColumn('actions', function ($item) {
                 /*Edit link*/
@@ -64,7 +57,7 @@ class MenusListDataTable extends AbstractDataTables
                 /*Buttons*/
                 $editBtn = link_to(route('admin::menus.edit.get', ['id' => $item->id]), 'Edit', ['class' => 'btn btn-sm btn-outline green']);
 
-                $activeBtn = ($item->status != 'activated') ? \Form::button('Active', [
+                $activeBtn = ($item->status != 'activated') ? form()->button('Active', [
                     'title' => 'Active this item',
                     'data-ajax' => $activeLink,
                     'data-method' => 'POST',
@@ -73,7 +66,7 @@ class MenusListDataTable extends AbstractDataTables
                     'type' => 'button',
                 ]) : '';
 
-                $disableBtn = ($item->status != 'disabled') ? \Form::button('Disable', [
+                $disableBtn = ($item->status != 'disabled') ? form()->button('Disable', [
                     'title' => 'Disable this item',
                     'data-ajax' => $disableLink,
                     'data-method' => 'POST',
@@ -82,7 +75,7 @@ class MenusListDataTable extends AbstractDataTables
                     'type' => 'button',
                 ]) : '';
 
-                $deleteBtn = \Form::button('Delete', [
+                $deleteBtn = form()->button('Delete', [
                     'title' => 'Delete this item',
                     'data-ajax' => $deleteLink,
                     'data-method' => 'DELETE',

@@ -63,14 +63,12 @@ class MenuController extends BaseAdminController
     {
         $this->assets
             ->addStylesheets('jquery-nestable')
-            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
+            ->addStylesheetsDirectly('admin/modules/menu/menu-nestable.css')
             ->addJavascripts('jquery-nestable')
-            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
+            ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
         $this->setPageTitle('Create menu');
         $this->breadcrumbs->addLink('Create menu');
-
-        $this->dis['currentId'] = 0;
 
         $this->dis['object'] = $this->repository->getModel();
         $oldInputs = old();
@@ -140,9 +138,9 @@ class MenuController extends BaseAdminController
 
         $this->assets
             ->addStylesheets('jquery-nestable')
-            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
+            ->addStylesheetsDirectly('admin/modules/menu/menu-nestable.css')
             ->addJavascripts('jquery-nestable')
-            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
+            ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
         $this->setPageTitle('Edit menu', $item->title);
         $this->breadcrumbs->addLink('Edit menu');
@@ -150,7 +148,6 @@ class MenuController extends BaseAdminController
         $this->dis['menuStructure'] = json_encode($item->all_menu_nodes);
 
         $this->dis['object'] = $item;
-        $this->dis['currentId'] = $id;
 
         return do_filter('menus.edit.get', $this, $id)->viewAdmin('edit');
     }

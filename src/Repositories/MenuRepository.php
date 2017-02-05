@@ -1,21 +1,24 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
+use WebEd\Base\Caching\Services\Traits\Cacheable;
 use WebEd\Base\Core\Models\Contracts\BaseModelContract;
-use WebEd\Base\Core\Repositories\AbstractBaseRepository;
+use WebEd\Base\Core\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
 
 use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 
-class MenuRepository extends AbstractBaseRepository implements MenuRepositoryContract, CacheableContract
+class MenuRepository extends EloquentBaseRepository implements MenuRepositoryContract, CacheableContract
 {
+    use Cacheable;
+
     protected $rules = [
         'title' => 'string|max:255|required',
         'slug' => 'string|max:255|alpha_dash|required',
         'status' => 'string|required|in:activated,disabled',
-        'created_by' => 'integer|min:0|nullable',
-        'updated_by' => 'integer|min:0|nullable',
+        'created_by' => 'integer|min:0|required',
+        'updated_by' => 'integer|min:0|required',
     ];
 
     protected $editableFields = [
@@ -132,10 +135,10 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
         }
 
         $nodes = $this->menuNodeRepository
-            ->orderBy('sort_order', 'ASC')
             ->where('menu_id', '=', $menuId->id)
             ->where('parent_id', '=', $parentId)
             ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
+            ->orderBy('sort_order', 'ASC')
             ->get();
 
         foreach ($nodes as &$node) {
