@@ -36,6 +36,7 @@ if (!function_exists('webed_menu_render')) {
 
         $options = array_merge([
             'class' => 'nav nav-bar',
+            'id' => '',
             'container_tag' => 'nav',
             'container_class' => '',
             'container_id' => '',
@@ -43,6 +44,7 @@ if (!function_exists('webed_menu_render')) {
             'child_tag' => 'li',
             'has_sub_class' => 'has-children',
             'submenu_class' => 'sub-menu',
+            'item_class' => '',
             'active_class' => 'active current-menu-item',
             'menu_active' => [
                 'type' => 'custom-link',
