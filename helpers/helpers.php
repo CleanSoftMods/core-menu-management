@@ -1,7 +1,8 @@
 <?php
-
 use \WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
+use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 use \WebEd\Base\Menu\Repositories\MenuRepository;
+use WebEd\Base\Menu\Repositories\MenuNodeRepository;
 
 if (!function_exists('menus_management')) {
     /**
@@ -23,8 +24,11 @@ if (!function_exists('webed_menu_render')) {
     {
         /**
          * @var MenuRepository $repo
+         * @var MenuNodeRepository $nodeRepo
          */
         $repo = app(MenuRepositoryContract::class);
+        $nodeRepo = app(MenuNodeRepositoryContract::class);
+
         $menu = $repo->where([
             'slug' => $alias,
             'status' => 'activated',
@@ -52,7 +56,7 @@ if (!function_exists('webed_menu_render')) {
             ],
         ], $options);
 
-        $menuNodes = $repo->getMenuNodes($menu);
+        $menuNodes = $nodeRepo->getMenuNodes($menu);
 
         return view('webed-menu::front._renderer.menu', [
             'menuNodes' => $menuNodes,

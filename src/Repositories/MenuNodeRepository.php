@@ -1,5 +1,6 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
+use Illuminate\Support\Collection;
 use WebEd\Base\Caching\Services\Traits\Cacheable;
 use WebEd\Base\Core\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
@@ -18,6 +19,11 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
     protected $editableFields = [
         '*',
     ];
+
+    /**
+     * @var Collection
+     */
+    protected $allRelatedNodes;
 
     /**
      * $messages
@@ -76,12 +82,15 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
             return null;
         }
 
-        $nodes = $this->model
-            ->where('menu_id', $menuId->id)
-            ->where('parent_id', $parentId)
-            ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
-            ->orderBy('sort_order', 'ASC')
-            ->get();
+        if (!$this->allRelatedNodes) {
+            $this->allRelatedNodes = $this
+                ->where('menu_id', $menuId->id)
+                ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
+                ->orderBy('sort_order', 'ASC')
+                ->get();
+        }
+
+        $nodes = $this->allRelatedNodes->where('parent_id', $parentId);
 
         $result = [];
 
@@ -89,8 +98,11 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
             $node->model_title = $node->title;
             $node->children = $this->getMenuNodes($menuId, $node->id);
             $result[] = $node;
+            if ($node->id == $nodes->last()->id && $parentId === null) {
+                $this->allRelatedNodes = null;
+            }
         }
 
-        return $result;
+        return collect($result);
     }
 }
