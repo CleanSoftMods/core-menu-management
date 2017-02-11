@@ -49,15 +49,4 @@ class MenuRepositoryCacheDecorator extends EloquentBaseRepositoryCacheDecorator 
     {
         return $this->beforeGet(__FUNCTION__, func_get_args());
     }
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null)
-    {
-        return $this->beforeGet(__FUNCTION__, func_get_args());
-    }
 }

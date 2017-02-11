@@ -34,12 +34,4 @@ interface MenuRepositoryContract
      * @return mixed|null|MenuModelContract
      */
     public function getMenu($id);
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null);
 }

@@ -4,7 +4,6 @@ use WebEd\Base\Caching\Services\Traits\Cacheable;
 use WebEd\Base\Core\Models\Contracts\BaseModelContract;
 use WebEd\Base\Core\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
-
 use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
@@ -112,40 +111,8 @@ class MenuRepository extends EloquentBaseRepository implements MenuRepositoryCon
             return null;
         }
 
-        $menu->all_menu_nodes = $this->getMenuNodes($menu);
+        $menu->all_menu_nodes = $this->menuNodeRepository->getMenuNodes($menu);
 
         return $menu;
-    }
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null)
-    {
-        if($menuId instanceof MenuModelContract) {
-            $menu = $menuId;
-        } else {
-            $menu = $this->find($menuId);
-        }
-        if(!$menu) {
-            return null;
-        }
-
-        $nodes = $this->menuNodeRepository
-            ->where('menu_id', '=', $menuId->id)
-            ->where('parent_id', '=', $parentId)
-            ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
-            ->orderBy('sort_order', 'ASC')
-            ->get();
-
-        foreach ($nodes as &$node) {
-            $node->model_title = $node->title;
-            $node->children = $this->getMenuNodes($menuId, $node->id);
-        }
-
-        return $nodes;
     }
 }
