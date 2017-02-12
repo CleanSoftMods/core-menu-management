@@ -98,6 +98,9 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
             $node->model_title = $node->title;
             $node->children = $this->getMenuNodes($menuId, $node->id);
             $result[] = $node;
+            /**
+             * Reset related nodes when done
+             */
             if ($node->id == $nodes->last()->id && $parentId === null) {
                 $this->allRelatedNodes = null;
             }
