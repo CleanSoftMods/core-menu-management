@@ -89,9 +89,10 @@ if (!function_exists('is_menu_item_active')) {
                         if(in_array($node->related_id, $relatedId)) {
                             return true;
                         }
-                    }
-                    if ((int)$relatedId === (int)$node->related_id) {
-                        return true;
+                    } else {
+                        if ((int)$relatedId === (int)$node->related_id) {
+                            return true;
+                        }
                     }
                 }
                 break;
