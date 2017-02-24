@@ -21,7 +21,7 @@
                         array_get($options, 'menu_active.related_id')
                     );
                 @endphp
-                <li zclass="menu-item
+                <li class="menu-item
                 {{ array_get($options, 'item_class') }}
                 {{ in_array((int)$node->id, $childActivatedNodes) ? 'current-parent-menu-item' : '' }}
                 {{ $isMenuItemActive ? 'active' : '' }}
