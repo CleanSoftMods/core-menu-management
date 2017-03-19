@@ -1,6 +1,6 @@
 <?php namespace WebEd\Base\Menu\Http\DataTables;
 
-use WebEd\Base\Core\Http\DataTables\AbstractDataTables;
+use WebEd\Base\Http\DataTables\AbstractDataTables;
 use WebEd\Base\Menu\Models\Menu;
 
 class MenusListDataTable extends AbstractDataTables

@@ -1,6 +1,6 @@
 <?php namespace WebEd\Base\Menu\Http\Requests;
 
-use WebEd\Base\Core\Http\Requests\Request;
+use WebEd\Base\Http\Requests\Request;
 
 class CreateMenuRequest extends Request
 {

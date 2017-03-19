@@ -1,8 +1,8 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
 use WebEd\Base\Caching\Services\Traits\Cacheable;
-use WebEd\Base\Core\Models\Contracts\BaseModelContract;
-use WebEd\Base\Core\Repositories\Eloquent\EloquentBaseRepository;
+use WebEd\Base\Models\Contracts\BaseModelContract;
+use WebEd\Base\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
 use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;

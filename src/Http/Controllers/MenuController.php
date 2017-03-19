@@ -1,6 +1,6 @@
 <?php namespace WebEd\Base\Menu\Http\Controllers;
 
-use WebEd\Base\Core\Http\Controllers\BaseAdminController;
+use WebEd\Base\Http\Controllers\BaseAdminController;
 use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
 use WebEd\Base\Menu\Http\Requests\CreateMenuRequest;
 use WebEd\Base\Menu\Http\Requests\UpdateMenuRequest;
@@ -101,7 +101,7 @@ class MenuController extends BaseAdminController
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
-        $this->flashMessagesHelper
+        flash_messages()
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
@@ -127,7 +127,7 @@ class MenuController extends BaseAdminController
     {
         $item = $this->repository->getMenu($id);
         if (!$item) {
-            $this->flashMessagesHelper
+            flash_messages()
                 ->addMessages('This menu not exists', 'danger')
                 ->showMessagesOnSession();
 
@@ -156,7 +156,7 @@ class MenuController extends BaseAdminController
     {
         $item = $this->repository->find($id);
         if (!$item) {
-            $this->flashMessagesHelper
+            flash_messages()
                 ->addMessages('This menu not exists', 'danger')
                 ->showMessagesOnSession();
 
@@ -178,7 +178,7 @@ class MenuController extends BaseAdminController
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
-        $this->flashMessagesHelper
+        flash_messages()
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
