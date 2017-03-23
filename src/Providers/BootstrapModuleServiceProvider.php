@@ -6,8 +6,6 @@ use WebEd\Base\Menu\Repositories\MenuRepository;
 
 class BootstrapModuleServiceProvider extends ServiceProvider
 {
-    protected $module = 'WebEd\Base\Menu';
-
     /**
      * Bootstrap the application services.
      *

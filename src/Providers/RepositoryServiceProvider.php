@@ -12,8 +12,6 @@ use WebEd\Base\Menu\Repositories\MenuRepositoryCacheDecorator;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
-    protected $module = 'WebEd\Base\Menu';
-
     /**
      * Bootstrap the application services.
      *

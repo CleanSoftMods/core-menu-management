@@ -96,7 +96,6 @@
                     <div class="form-group">
                         <label class="control-label">
                             <b>Title</b>
-                            <span class="required">*</span>
                         </label>
                         <input required type="text" name="title"
                                class="form-control"
@@ -106,7 +105,6 @@
                     <div class="form-group">
                         <label class="control-label">
                             <b>Alias</b>
-                            <span class="required">*</span>
                         </label>
                         <input required type="text" name="slug"
                                class="form-control"
@@ -116,7 +114,6 @@
                     <div class="form-group">
                         <label class="control-label">
                             <b>Status</b>
-                            <span class="required">*</span>
                         </label>
                         {!! form()->select('status', [
                             'activated' => 'Activated',
