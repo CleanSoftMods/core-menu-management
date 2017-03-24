@@ -15,13 +15,13 @@
         <div class="scroller height-auto"
              style="max-height: 300px;"
              data-rail-visible="1">
-            @include('webed-menu::admin._components.checkboxes-list', $data)
+            @include('webed-menus::admin._components.checkboxes-list', $data)
         </div>
     </div>
     <div class="box-footer text-right">
         <button class="btn btn-primary add-item"
                 type="submit">
-            <i class="fa fa-plus"></i> Add
+            <i class="fa fa-plus"></i> {{ trans('webed-menus::base.add') }}
         </button>
     </div>
 </div>

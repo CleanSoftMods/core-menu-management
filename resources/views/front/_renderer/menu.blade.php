@@ -34,7 +34,7 @@
                         @endif
                         {{ $node->title }}
                     </a>
-                    @include('webed-menu::front._renderer.menu', [
+                    @include('webed-menus::front._renderer.menu', [
                         'menuNodes' => $node->children,
                         'options' => $options,
                         'isChild' => true,

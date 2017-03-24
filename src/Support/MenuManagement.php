@@ -49,7 +49,7 @@ class MenuManagement
             if (!is_array($widget['data']) || !$widget['data']) {
                 continue;
             }
-            $result[] = view('webed-menu::admin._components.widget', [
+            $result[] = view('webed-menus::admin._components.widget', [
                 'type' => $widget['type'],
                 'title' => $widget['title'],
                 'data' => $widget['data'],

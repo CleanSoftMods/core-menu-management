@@ -5,7 +5,7 @@
                 {!! Form::customCheckbox([
                     ['', array_get($row, 'id'), array_get($row, 'title')],
                 ]) !!}
-                @include('webed-menu::admin._components.checkboxes-list', ['data' => array_get($row, 'children')])
+                @include('webed-menus::admin._components.checkboxes-list', ['data' => array_get($row, 'children')])
             </li>
         @endforeach
     </ul>

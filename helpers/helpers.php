@@ -14,13 +14,13 @@ if (!function_exists('menus_management')) {
     }
 }
 
-if (!function_exists('webed_menu_render')) {
+if (!function_exists('webed_render_menu')) {
     /**
-     * @param string $alias
+     * @param string $slug
      * @param array $options
      * @return null|string
      */
-    function webed_menu_render($alias, array $options = [])
+    function webed_render_menu($slug, array $options = [])
     {
         /**
          * @var MenuRepository $repo
@@ -29,10 +29,10 @@ if (!function_exists('webed_menu_render')) {
         $repo = app(MenuRepositoryContract::class);
         $nodeRepo = app(MenuNodeRepositoryContract::class);
 
-        $menu = $repo->where([
-            'slug' => $alias,
+        $menu = $repo->findWhere([
+            'slug' => $slug,
             'status' => 'activated',
-        ])->first();
+        ]);
 
         if (!$menu) {
             return null;
@@ -54,11 +54,12 @@ if (!function_exists('webed_menu_render')) {
                 'type' => 'custom-link',
                 'related_id' => null,
             ],
+            'view' => 'webed-menus::front._renderer.menu',
         ], $options);
 
         $menuNodes = $nodeRepo->getMenuNodes($menu);
 
-        return view('webed-menu::front._renderer.menu', [
+        return view($options['view'], [
             'menuNodes' => $menuNodes,
             'options' => $options,
             'container' => true,

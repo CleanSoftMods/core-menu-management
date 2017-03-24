@@ -1,6 +1,7 @@
 <?php namespace WebEd\Base\Menu\Http\Controllers;
 
 use WebEd\Base\Http\Controllers\BaseAdminController;
+use WebEd\Base\Http\Requests\Request;
 use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
 use WebEd\Base\Menu\Http\Requests\CreateMenuRequest;
 use WebEd\Base\Menu\Http\Requests\UpdateMenuRequest;
@@ -9,7 +10,7 @@ use WebEd\Base\Menu\Repositories\MenuRepository;
 
 class MenuController extends BaseAdminController
 {
-    protected $module = 'webed-menu';
+    protected $module = 'webed-menus';
 
     /**
      * @param MenuRepository $repository
@@ -22,21 +23,21 @@ class MenuController extends BaseAdminController
 
         $this->getDashboardMenu($this->module);
 
-        $this->breadcrumbs->addLink('Menus', 'admin::menus.index.get');
+        $this->breadcrumbs->addLink(trans('webed-menus::base.menus'), 'admin::menus.index.get');
     }
 
     public function getIndex(MenusListDataTable $menusListDataTable)
     {
-        $this->setPageTitle('Menus management');
+        $this->setPageTitle(trans('webed-menus::base.menus_management'));
 
         $this->dis['dataTable'] = $menusListDataTable->run();
 
-        return do_filter('menus.index.get', $this)->viewAdmin('list');
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'index.get')->viewAdmin('list');
     }
 
     public function postListing(MenusListDataTable $menusListDataTable)
     {
-        return do_filter('datatables.menu.index.post', $menusListDataTable, $this);
+        return do_filter(BASE_FILTER_CONTROLLER, $menusListDataTable, WEBED_MENUS, 'index.post', $this);
     }
 
     /**
@@ -67,35 +68,16 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
-        $this->setPageTitle('Create menu');
-        $this->breadcrumbs->addLink('Create menu');
+        $this->setPageTitle(trans('webed-menus::base.create_menu'));
+        $this->breadcrumbs->addLink(trans('webed-menus::base.create_menu'));
 
-        $this->dis['object'] = $this->repository->getModel();
-        $oldInputs = old();
-        if ($oldInputs) {
-            foreach ($oldInputs as $key => $row) {
-                if($key === 'menu_structure') {
-                    $this->dis['menuStructure'] = $row;
-                } else {
-                    $this->dis['object']->$key = $row;
-                }
-            }
-        }
-
-        return do_filter('menus.create.get', $this)->viewAdmin('create');
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'create.get')->viewAdmin('create');
     }
 
     public function postCreate(CreateMenuRequest $request)
     {
-        $data = [
-            'menu_structure' => $request->get('menu_structure'),
-            'deleted_nodes' => $request->get('deleted_nodes'),
-            'status' => $request->get('status'),
-            'title' => $request->get('title'),
-            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
-            'updated_by' => $this->loggedInUser->id,
-            'created_by' => $this->loggedInUser->id,
-        ];
+        $data = $this->parseData($request);
+        $data['created_by'] = $this->loggedInUser->id;
 
         $result = $this->repository->createMenu($data);
 
@@ -105,11 +87,11 @@ class MenuController extends BaseAdminController
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        if($result['error']) {
+        if ($result['error']) {
             return redirect()->back()->withInput();
         }
 
-        do_action('menus.after-create.post', $result['data']->id, $result, $this);
+        do_action(BASE_ACTION_AFTER_CREATE, WEBED_MENUS, $result);
 
         if ($request->has('_continue_edit')) {
             return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']->id]));
@@ -128,13 +110,13 @@ class MenuController extends BaseAdminController
         $item = $this->repository->getMenu($id);
         if (!$item) {
             flash_messages()
-                ->addMessages('This menu not exists', 'danger')
+                ->addMessages(trans('webed-menus::base.menu_not_exists'), 'danger')
                 ->showMessagesOnSession();
 
             return redirect()->back();
         }
 
-        $item = do_filter('menus.before-edit.get', $item);
+        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS);
 
         $this->assets
             ->addStylesheets('jquery-nestable')
@@ -142,14 +124,14 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
-        $this->setPageTitle('Edit menu', $item->title);
-        $this->breadcrumbs->addLink('Edit menu');
+        $this->setPageTitle(trans('webed-menus::base.edit_menu'), $item->title);
+        $this->breadcrumbs->addLink(trans('webed-menus::base.edit_menu'));
 
         $this->dis['menuStructure'] = json_encode($item->all_menu_nodes);
 
         $this->dis['object'] = $item;
 
-        return do_filter('menus.edit.get', $this, $id)->viewAdmin('edit');
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'edit.get', $id)->viewAdmin('edit');
     }
 
     public function postEdit(UpdateMenuRequest $request, $id)
@@ -157,22 +139,15 @@ class MenuController extends BaseAdminController
         $item = $this->repository->find($id);
         if (!$item) {
             flash_messages()
-                ->addMessages('This menu not exists', 'danger')
+                ->addMessages(trans('webed-menus::base.menu_not_exists'), 'danger')
                 ->showMessagesOnSession();
 
             return redirect()->back();
         }
 
-        $item = do_filter('menus.before-edit.get', $item);
+        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS);
 
-        $data = [
-            'menu_structure' => $request->get('menu_structure'),
-            'deleted_nodes' => $request->get('deleted_nodes'),
-            'status' => $request->get('status'),
-            'title' => $request->get('title'),
-            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
-            'updated_by' => $this->loggedInUser->id,
-        ];
+        $data = $this->parseData($request);
 
         $result = $this->repository->updateMenu($item, $data);
 
@@ -182,11 +157,11 @@ class MenuController extends BaseAdminController
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        if($result['error']) {
+        if ($result['error']) {
             return redirect()->back();
         }
 
-        do_action('menus.after-edit.post', $id, $result, $this);
+        do_action(BASE_ACTION_AFTER_UPDATE, WEBED_MENUS, $result);
 
         if ($request->has('_continue_edit')) {
             return redirect()->back();
@@ -202,12 +177,24 @@ class MenuController extends BaseAdminController
      */
     public function deleteDelete($id)
     {
-        $id = do_filter('menus.before-delete.delete', $id);
+        $id = do_filter(BASE_FILTER_BEFORE_DELETE, $id, WEBED_MENUS);
 
         $result = $this->repository->delete($id);
 
-        do_action('menus.after-delete.delete', $id, $result);
+        do_action(BASE_ACTION_AFTER_DELETE, WEBED_MENUS, $id, $result);
 
         return response()->json($result, $result['response_code']);
+    }
+
+    protected function parseData(Request $request)
+    {
+        return [
+            'menu_structure' => $request->get('menu_structure'),
+            'deleted_nodes' => $request->get('deleted_nodes'),
+            'status' => $request->get('status'),
+            'title' => $request->get('title'),
+            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
+            'updated_by' => $this->loggedInUser->id,
+        ];
     }
 }

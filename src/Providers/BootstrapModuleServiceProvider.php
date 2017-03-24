@@ -34,11 +34,11 @@ class BootstrapModuleServiceProvider extends ServiceProvider
          * Register to dashboard menu
          */
         \DashboardMenu::registerItem([
-            'id' => 'webed-menu',
+            'id' => 'webed-menus',
             'priority' => 20,
             'parent_id' => null,
             'heading' => null,
-            'title' => 'Menus',
+            'title' => trans('webed-menus::base.menus'),
             'font_icon' => 'fa fa-bars',
             'link' => route('admin::menus.index.get'),
             'css_class' => null,
@@ -50,15 +50,14 @@ class BootstrapModuleServiceProvider extends ServiceProvider
                 'group' => 'basic',
                 'type' => 'select',
                 'priority' => 3,
-                'label' => 'Main menu',
-                'helper' => 'Main menu of our website'
+                'label' => trans('webed-menus::base.settings.main_menu.label'),
+                'helper' => trans('webed-menus::base.settings.main_menu.helper'),
             ], function () {
                 /**
                  * @var MenuRepository $menus
                  */
                 $menus = app(MenuRepositoryContract::class);
-                $menus = $menus->where('status', '=', 'activated')
-                    ->get();
+                $menus = $menus->getWhere(['status' => 'activated']);
 
                 $menusArr = [];
 

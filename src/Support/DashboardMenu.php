@@ -152,7 +152,7 @@ class DashboardMenu
     public function render()
     {
         $links = $this->rearrangeLinks();
-        return view('webed-menu::admin.dashboard-menu.menu', [
+        return view('webed-menus::admin.dashboard-menu.menu', [
             'isChildren' => false,
             'links' => $links,
             'level' => 0,

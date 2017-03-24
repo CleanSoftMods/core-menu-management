@@ -83,7 +83,7 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
         }
 
         if (!$this->allRelatedNodes) {
-            $this->allRelatedNodes = $this
+            $this->allRelatedNodes = $this->model
                 ->where('menu_id', $menuId->id)
                 ->select(['id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target'])
                 ->orderBy('sort_order', 'ASC')

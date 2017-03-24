@@ -14,17 +14,17 @@ class ModuleProvider extends ServiceProvider
     public function boot()
     {
         /*Load views*/
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'webed-menu');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'webed-menus');
         /*Load translations*/
-        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'webed-menu');
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'webed-menus');
         /*Load migrations*/
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         $this->publishes([
-            __DIR__ . '/../../resources/views' => config('view.paths')[0] . '/vendor/webed-menu',
+            __DIR__ . '/../../resources/views' => config('view.paths')[0] . '/vendor/webed-menus',
         ], 'views');
         $this->publishes([
-            __DIR__ . '/../../resources/lang' => base_path('resources/lang/vendor/webed-menu'),
+            __DIR__ . '/../../resources/lang' => base_path('resources/lang/vendor/webed-menus'),
         ], 'lang');
         $this->publishes([
             __DIR__ . '/../../resources/assets' => resource_path('assets'),

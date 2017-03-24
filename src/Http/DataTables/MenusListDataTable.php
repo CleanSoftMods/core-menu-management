@@ -2,6 +2,9 @@
 
 use WebEd\Base\Http\DataTables\AbstractDataTables;
 use WebEd\Base\Menu\Models\Menu;
+use Yajra\Datatables\Engines\CollectionEngine;
+use Yajra\Datatables\Engines\EloquentEngine;
+use Yajra\Datatables\Engines\QueryBuilderEngine;
 
 class MenusListDataTable extends AbstractDataTables
 {
@@ -10,8 +13,49 @@ class MenusListDataTable extends AbstractDataTables
     public function __construct()
     {
         $this->model = Menu::select('id', 'created_at', 'title', 'slug', 'status');
+    }
 
-        parent::__construct();
+    /**
+     * @return array
+     */
+    public function headings()
+    {
+        return [
+            'title' => [
+                'title' => trans('webed-menus::datatables.heading.title'),
+                'width' => '25%',
+            ],
+            'slug' => [
+                'title' => trans('webed-menus::datatables.heading.slug'),
+                'width' => '25%',
+            ],
+            'status' => [
+                'title' => trans('webed-menus::datatables.heading.status'),
+                'width' => '15%',
+            ],
+            'created_at' => [
+                'title' => trans('webed-menus::datatables.heading.created_at'),
+                'width' => '15%',
+            ],
+            'actions' => [
+                'title' => trans('webed-core::datatables.heading.actions'),
+                'width' => '20%',
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function columns()
+    {
+        return [
+            ['data' => 'title', 'name' => 'title'],
+            ['data' => 'slug', 'name' => 'slug'],
+            ['data' => 'status', 'name' => 'status'],
+            ['data' => 'created_at', 'name' => 'created_at', 'searchable' => false],
+            ['data' => 'actions', 'name' => 'actions', 'searchable' => false, 'orderable' => false],
+        ];
     }
 
     /**
@@ -21,32 +65,18 @@ class MenusListDataTable extends AbstractDataTables
     {
         $this->setAjaxUrl(route('admin::menus.index.post'), 'POST');
 
-        $this
-            ->addHeading('title', 'Title', '25%')
-            ->addHeading('slug', 'Alias', '25%')
-            ->addHeading('status', 'Status', '15%')
-            ->addHeading('created_at', 'Created at', '15%')
-            ->addHeading('actions', 'Actions', '20%');
-
-        $this->setColumns([
-            ['data' => 'title', 'name' => 'title'],
-            ['data' => 'slug', 'name' => 'slug'],
-            ['data' => 'status', 'name' => 'status'],
-            ['data' => 'created_at', 'name' => 'created_at', 'searchable' => false],
-            ['data' => 'actions', 'name' => 'actions', 'searchable' => false, 'orderable' => false],
-        ]);
-
         return $this->view();
     }
 
     /**
-     * @return $this
+     * @return CollectionEngine|EloquentEngine|QueryBuilderEngine|mixed
      */
-    protected function fetch()
+    protected function fetchDataForAjax()
     {
-        $this->fetch = datatable()->of($this->model)
+        return datatable()->of($this->model)
+            ->rawColumns(['actions'])
             ->editColumn('status', function ($item) {
-                return html()->label($item->status, $item->status);
+                return html()->label(trans('webed-core::base.status.' . $item->status), $item->status);
             })
             ->addColumn('actions', function ($item) {
                 /*Edit link*/
@@ -55,10 +85,10 @@ class MenusListDataTable extends AbstractDataTables
                 $deleteLink = route('admin::menus.delete.delete', ['id' => $item->id]);
 
                 /*Buttons*/
-                $editBtn = link_to(route('admin::menus.edit.get', ['id' => $item->id]), 'Edit', ['class' => 'btn btn-sm btn-outline green']);
+                $editBtn = link_to(route('admin::menus.edit.get', ['id' => $item->id]), trans('webed-core::datatables.edit'), ['class' => 'btn btn-sm btn-outline green']);
 
-                $activeBtn = ($item->status != 'activated') ? form()->button('Active', [
-                    'title' => 'Active this item',
+                $activeBtn = ($item->status != 'activated') ? form()->button(trans('webed-core::datatables.active'), [
+                    'title' => trans('webed-core::datatables.active_this_item'),
                     'data-ajax' => $activeLink,
                     'data-method' => 'POST',
                     'data-toggle' => 'confirmation',
@@ -66,8 +96,8 @@ class MenusListDataTable extends AbstractDataTables
                     'type' => 'button',
                 ]) : '';
 
-                $disableBtn = ($item->status != 'disabled') ? form()->button('Disable', [
-                    'title' => 'Disable this item',
+                $disableBtn = ($item->status != 'disabled') ? form()->button(trans('webed-core::datatables.disable'), [
+                    'title' => trans('webed-core::datatables.disable_this_item'),
                     'data-ajax' => $disableLink,
                     'data-method' => 'POST',
                     'data-toggle' => 'confirmation',
@@ -75,8 +105,8 @@ class MenusListDataTable extends AbstractDataTables
                     'type' => 'button',
                 ]) : '';
 
-                $deleteBtn = form()->button('Delete', [
-                    'title' => 'Delete this item',
+                $deleteBtn = form()->button(trans('webed-core::datatables.delete'), [
+                    'title' => trans('webed-core::datatables.delete_this_item'),
                     'data-ajax' => $deleteLink,
                     'data-method' => 'DELETE',
                     'data-toggle' => 'confirmation',
@@ -86,7 +116,5 @@ class MenusListDataTable extends AbstractDataTables
 
                 return $editBtn . $activeBtn . $disableBtn . $deleteBtn;
             });
-
-        return $this;
     }
 }

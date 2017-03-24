@@ -5,7 +5,7 @@
 @endsection
 
 @section('js')
-    @include('webed-menu::admin._components.nestable-script-renderer')
+    @include('webed-menus::admin._components.nestable-script-renderer')
 @endsection
 
 @section('js-init')
@@ -15,72 +15,17 @@
 @section('content')
     <div class="layout-2columns sidebar-left">
         <div class="column left">
-            @php do_action('meta_boxes', 'top-sidebar', 'menus.create', $object) @endphp
-            <div class="box box-primary box-link-menus"
-                 data-type="custom-link">
-                <div class="box-header with-border">
-                    <h3 class="box-title">
-                        <i class="icon-layers font-dark"></i>
-                        Custom link
-                    </h3>
-                    <div class="box-tools">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="box-body">
-                    <div class="form-group">
-                        <label class="control-label"><b>Title</b></label>
-                        <input type="text" class="form-control" placeholder="" value="" name=""
-                               data-field="title"
-                               autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><b>Url</b></label>
-                        <input type="text" class="form-control" placeholder="" value="" name=""
-                               data-field="url"
-                               autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><b>Css class</b></label>
-                        <input type="text" class="form-control" placeholder="" value="" name=""
-                               data-field="css_class"
-                               autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><b>Icon font class</b></label>
-                        <input type="text" class="form-control" placeholder="" value="" name=""
-                               data-field="icon_font"
-                               autocomplete="off">
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label"><b>Target type</b></label>
-                        <select name="" class="form-control" data-field="target">
-                            <option value="">Not set</option>
-                            <option value="_self">Self</option>
-                            <option value="_blank">Blank</option>
-                            <option value="_parent">Parent</option>
-                            <option value="_top">Top</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="box-footer text-right">
-                    <button class="btn btn-primary add-item"
-                            type="submit">
-                        <i class="fa fa-plus"></i> Add
-                    </button>
-                </div>
-            </div>
+            @php do_action(BASE_ACTION_META_BOXES, 'top-sidebar', 'webed-menus.create', null) @endphp
+            @include('webed-menus::admin._partials.custom-link')
             {!! menus_management()->renderWidgets() !!}
-            @php do_action('meta_boxes', 'bottom-sidebar', 'menus.create', $object) @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'bottom-sidebar', 'webed-menus.create', null) @endphp
         </div>
         <div class="column main">
-            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate', 'url' => route('admin::menus.create.post')]) !!}
+            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate']) !!}
             <textarea name="menu_structure"
                       id="menu_structure"
                       class="hidden"
-                      style="display: none;">{!! $menuStructure or '[]' !!}</textarea>
+                      style="display: none;">{!! old('menu_structure', '[]') !!}</textarea>
             <textarea name="deleted_nodes"
                       id="deleted_nodes"
                       class="hidden"
@@ -89,40 +34,40 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">
                         <i class="icon-layers font-dark"></i>
-                        Edit menu
+                        {{ trans('webed-menus::base.menu_info') }}
                     </h3>
                 </div>
                 <div class="box-body">
                     <div class="form-group">
                         <label class="control-label">
-                            <b>Title</b>
+                            <b>{{ trans('webed-menus::base.title') }}</b>
                         </label>
                         <input required type="text" name="title"
                                class="form-control"
-                               value="{{ $object->title or '' }}"
+                               value="{{ old('title') }}"
                                autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="control-label">
-                            <b>Alias</b>
+                            <b>{{ trans('webed-menus::base.slug') }}</b>
                         </label>
                         <input required type="text" name="slug"
                                class="form-control"
-                               value="{{ $object->slug or '' }}"
+                               value="{{ old('slug') }}"
                                autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label class="control-label">
-                            <b>Status</b>
+                            <b>{{ trans('webed-menus::base.status') }}</b>
                         </label>
                         {!! form()->select('status', [
-                            'activated' => 'Activated',
-                            'disabled' => 'Disabled',
-                        ], (isset($object->status) ? $object->status : ''), ['class' => 'form-control']) !!}
+                            'activated' => trans('webed-core::base.status.activated'),
+                            'disabled' => trans('webed-core::base.status.disabled'),
+                        ], old('status'), ['class' => 'form-control']) !!}
                     </div>
                     <div class="form-group">
                         <label class="control-label">
-                            <b>Menu structure</b>
+                            <b>{{ trans('webed-menus::base.menu_structure') }}</b>
                         </label>
                         <div class="dd nestable-menu"></div>
                     </div>
@@ -130,17 +75,17 @@
                 <div class="box-footer text-right">
                     <button class="btn btn-primary"
                             type="submit">
-                        <i class="fa fa-check"></i> Save
+                        <i class="fa fa-check"></i> {{ trans('webed-core::base.form.save') }}
                     </button>
                     <button class="btn btn-success"
                             name="_continue_edit"
                             value="1"
                             type="submit">
-                        <i class="fa fa-check"></i> Save & continue
+                        <i class="fa fa-check"></i> {{ trans('webed-core::base.form.save_and_continue') }}
                     </button>
                 </div>
             </div>
-            @php do_action('meta_boxes', 'main', 'menus.create', $object) @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'main', 'webed-menus.create', null) @endphp
             {!! Form::close() !!}
         </div>
     </div>
