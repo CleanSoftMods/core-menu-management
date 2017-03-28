@@ -1,8 +1,10 @@
 <?php namespace WebEd\Base\Menu\Providers;
 
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use WebEd\Base\Menu\Facades\DashboardMenuFacade;
 use WebEd\Base\Menu\Facades\MenuManagementFacade;
+use WebEd\Base\Menu\Http\Middleware\BootstrapModuleMiddleware;
 
 class ModuleProvider extends ServiceProvider
 {
@@ -32,6 +34,10 @@ class ModuleProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../../resources/public' => public_path(),
         ], 'webed-public-assets');
+
+        app()->booted(function () {
+            $this->app->register(BootstrapModuleServiceProvider::class);
+        });
     }
 
     /**
@@ -46,11 +52,16 @@ class ModuleProvider extends ServiceProvider
 
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(RepositoryServiceProvider::class);
-        $this->app->register(BootstrapModuleServiceProvider::class);
 
         //Register related facades
         $loader = \Illuminate\Foundation\AliasLoader::getInstance();
         $loader->alias('MenuManagement', MenuManagementFacade::class);
         $loader->alias('DashboardMenu', DashboardMenuFacade::class);
+
+        /**
+         * @var Router $router
+         */
+        $router = $this->app['router'];
+        $router->pushMiddlewareToGroup('web', BootstrapModuleMiddleware::class);
     }
 }
