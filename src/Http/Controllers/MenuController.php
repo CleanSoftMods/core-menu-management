@@ -57,9 +57,9 @@ class MenuController extends BaseAdminController
         ];
         $result = $this->repository->update($id, $data);
 
-
-
-        return response()->json($result, $result['response_code']);
+        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
+        $code = $result ? \Constants::SUCCESS_NO_CONTENT_CODE : \Constants::ERROR_CODE;
+        return response()->json(response_with_messages($msg, !$result, $code), $code);
     }
 
     /**
