@@ -9,7 +9,9 @@ class Menu extends BaseModel implements MenuModelContract
 
     protected $primaryKey = 'id';
 
-    protected $fillable = [];
+    protected $fillable = [
+        'title', 'slug', 'status', 'created_by', 'updated_by',
+    ];
 
     public $timestamps = true;
 }

@@ -2,23 +2,14 @@
 
 use Illuminate\Support\Collection;
 use WebEd\Base\Caching\Services\Traits\Cacheable;
+use WebEd\Base\Menu\Models\Menu;
 use WebEd\Base\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
-
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 
 class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepositoryContract, CacheableContract
 {
     use Cacheable;
-
-    protected $rules = [
-
-    ];
-
-    protected $editableFields = [
-        '*',
-    ];
 
     /**
      * @var Collection
@@ -26,54 +17,52 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
     protected $allRelatedNodes;
 
     /**
-     * $messages
-     * @param $menuId
-     * @param $node
+     * @param int $menuId
+     * @param array $nodeData
+     * @param int $order
      * @param null $parentId
+     * @return int|null
      */
-    public function updateMenuNode($menuId, $node, $order, $parentId = null)
+    public function updateMenuNode($menuId, array $nodeData, $order, $parentId = null)
     {
-        $result = $this->editWithValidate(array_get($node, 'id'), [
+        $result = $this->createOrUpdate(array_get($nodeData, 'id'), [
             'menu_id' => $menuId,
             'parent_id' => $parentId,
-            'related_id' => array_get($node, 'related_id') ?: null,
-            'type' => array_get($node, 'type'),
-            'title' => array_get($node, 'title'),
-            'icon_font' => array_get($node, 'icon_font'),
-            'css_class' => array_get($node, 'css_class'),
-            'target' => array_get($node, 'target'),
-            'url' => array_get($node, 'url'),
+            'related_id' => array_get($nodeData, 'related_id') ?: null,
+            'type' => array_get($nodeData, 'type'),
+            'title' => array_get($nodeData, 'title'),
+            'icon_font' => array_get($nodeData, 'icon_font'),
+            'css_class' => array_get($nodeData, 'css_class'),
+            'target' => array_get($nodeData, 'target'),
+            'url' => array_get($nodeData, 'url'),
             'sort_order' => $order,
-        ], true, true);
+        ]);
 
-        /**
-         * Add messages when some error occurred
-         */
-        if($result['error']) {
-            flash_messages()->addMessages($result['messages'], 'danger');
-            return;
+        if(!$result) {
+            return $result;
         }
 
-        $children = array_get($node, 'children', null);
+        $children = array_get($nodeData, 'children', null);
+
         /**
          * Save the children
          */
-        if(!$result['error'] && is_array($children)) {
+        if($result && is_array($children)) {
             foreach ($children as $key => $child) {
-                $this->updateMenuNode($menuId, $child, $key, $result['data']->id);
+                $this->updateMenuNode($menuId, $child, $key, $result);
             }
         }
+        return $result;
     }
 
     /**
-     * Get menu nodes
-     * @param $menuId
+     * @param Menu|int $menuId
      * @param null|int $parentId
-     * @return mixed|null
+     * @return Collection|null
      */
     public function getMenuNodes($menuId, $parentId = null)
     {
-        if($menuId instanceof MenuModelContract) {
+        if($menuId instanceof Menu) {
             $menu = $menuId;
         } else {
             $menu = $this->find($menuId);

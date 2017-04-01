@@ -1,32 +1,16 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
 use WebEd\Base\Caching\Services\Traits\Cacheable;
+use WebEd\Base\Menu\Models\Menu;
 use WebEd\Base\Models\Contracts\BaseModelContract;
 use WebEd\Base\Repositories\Eloquent\EloquentBaseRepository;
 use WebEd\Base\Caching\Services\Contracts\CacheableContract;
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 
 class MenuRepository extends EloquentBaseRepository implements MenuRepositoryContract, CacheableContract
 {
     use Cacheable;
-
-    protected $rules = [
-        'title' => 'string|max:255|required',
-        'slug' => 'string|max:255|alpha_dash|required',
-        'status' => 'string|required|in:activated,disabled',
-        'created_by' => 'integer|min:0|required',
-        'updated_by' => 'integer|min:0|required',
-    ];
-
-    protected $editableFields = [
-        'title',
-        'slug',
-        'status',
-        'created_by',
-        'updated_by',
-    ];
 
     /**
      * @var MenuNodeRepository|MenuNodeRepositoryCacheDecorator
@@ -41,68 +25,67 @@ class MenuRepository extends EloquentBaseRepository implements MenuRepositoryCon
     }
 
     /**
-     * Create menu
-     * @param $data
-     * @return array
+     * @param array $data
+     * @param array|null $menuStructure
+     * @return int|null
      */
-    public function createMenu($data)
+    public function createMenu(array $data, array $menuStructure = null)
     {
-        return $this->updateMenu(0, $data, true, false);
-    }
-
-    /**
-     * Update menu
-     * @param $id
-     * @param $data
-     * @param bool $allowCreateNew
-     * @param bool $justUpdateSomeFields
-     * @return array
-     */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true)
-    {
-        $menuStructure = array_get($data, 'menu_structure');
-        $deletedNodes = json_decode(array_get($data, 'deleted_nodes', '[]'));
-        array_forget($data, ['menu_structure', 'deleted_nodes']);
-
-        if($deletedNodes) {
-            $this->menuNodeRepository->delete($deletedNodes);
-        }
-
-        $result = $this->editWithValidate($id, $data, $allowCreateNew, $justUpdateSomeFields);
-
-        if ($result['error'] || !$menuStructure) {
+        $result = $this->create($data);
+        if (!$result || !$menuStructure) {
             return $result;
         }
-
-        $this->updateMenuStructure($result['data']->id, $menuStructure);
+        if ($menuStructure !== null) {
+            $this->updateMenuStructure($result, $menuStructure);
+        }
 
         return $result;
     }
 
     /**
-     * Update menu structure
-     * @param $menuId
-     * @param $menuStructure
+     * @param Menu|int $id
+     * @param array $data
+     * @param array|null $menuStructure
+     * @param array|null $deletedNodes
+     * @return int|null
      */
-    public function updateMenuStructure($menuId, $menuStructure)
+    public function updateMenu($id, array $data, array $menuStructure = null, array $deletedNodes = null)
     {
-        if (!is_array($menuStructure)) {
-            $menuStructure = json_decode($menuStructure, true);
+        $result = $this->update($id, $data);
+
+        if (!$result || !$menuStructure) {
+            return $result;
         }
 
+        if($deletedNodes) {
+            $this->menuNodeRepository->delete($deletedNodes);
+        }
+
+        if ($menuStructure !== null) {
+            $this->updateMenuStructure($result, $menuStructure);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param int $menuId
+     * @param array $menuStructure
+     */
+    public function updateMenuStructure($menuId, array $menuStructure)
+    {
         foreach ($menuStructure as $order => $node) {
             $this->menuNodeRepository->updateMenuNode($menuId, $node, $order);
         }
     }
 
     /**
-     * Get menu
-     * @param $id
-     * @return mixed|null|MenuModelContract
+     * @param Menu|int $id
+     * @return \Illuminate\Database\Eloquent\Builder|null|Menu|\WebEd\Base\Models\EloquentBase
      */
     public function getMenu($id)
     {
-        if($id instanceof MenuModelContract) {
+        if($id instanceof Menu) {
             $menu = $id;
         } else {
             $menu = $this->find($id);

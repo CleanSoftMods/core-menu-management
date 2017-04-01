@@ -21,9 +21,13 @@ class MenuController extends BaseAdminController
 
         $this->repository = $repository;
 
-        $this->getDashboardMenu($this->module);
+        $this->middleware(function ($request, $next) {
+            $this->getDashboardMenu($this->module);
 
-        $this->breadcrumbs->addLink(trans('webed-menus::base.menus'), 'admin::menus.index.get');
+            $this->breadcrumbs->addLink(trans('webed-menus::base.menus'), 'admin::menus.index.get');
+
+            return $next($request);
+        });
     }
 
     public function getIndex(MenusListDataTable $menusListDataTable)
@@ -51,7 +55,9 @@ class MenuController extends BaseAdminController
         $data = [
             'status' => $status
         ];
-        $result = $this->repository->editWithValidate($id, $data, false, true);
+        $result = $this->repository->update($id, $data);
+
+
 
         return response()->json($result, $result['response_code']);
     }
@@ -79,22 +85,25 @@ class MenuController extends BaseAdminController
         $data = $this->parseData($request);
         $data['created_by'] = $this->loggedInUser->id;
 
-        $result = $this->repository->createMenu($data);
+        $menuStructure = json_decode($this->request->get('menu_structure'), true);
 
-        $msgType = $result['error'] ? 'danger' : 'success';
+        $result = $this->repository->createMenu($data, $menuStructure);
+
+        $msgType = !$result ? 'danger' : 'success';
+        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
 
         flash_messages()
-            ->addMessages($result['messages'], $msgType)
+            ->addMessages($msg, $msgType)
             ->showMessagesOnSession();
 
-        if ($result['error']) {
+        if (!$result) {
             return redirect()->back()->withInput();
         }
 
         do_action(BASE_ACTION_AFTER_CREATE, WEBED_MENUS, $result);
 
         if ($request->has('_continue_edit')) {
-            return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']->id]));
+            return redirect()->to(route('admin::menus.edit.get', ['id' => $result]));
         }
 
         return redirect()->to(route('admin::menus.index.get'));
@@ -124,7 +133,7 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
-        $this->setPageTitle(trans('webed-menus::base.edit_menu'), $item->title);
+        $this->setPageTitle(trans('webed-menus::base.edit_menu'), '#' . $item->id);
         $this->breadcrumbs->addLink(trans('webed-menus::base.edit_menu'));
 
         $this->dis['menuStructure'] = json_encode($item->all_menu_nodes);
@@ -149,12 +158,16 @@ class MenuController extends BaseAdminController
 
         $data = $this->parseData($request);
 
-        $result = $this->repository->updateMenu($item, $data);
+        $deletedNodes = json_decode($this->request->get('deleted_nodes'), true);
+        $menuStructure = json_decode($this->request->get('menu_structure'), true);
 
-        $msgType = $result['error'] ? 'danger' : 'success';
+        $result = $this->repository->updateMenu($item, $data, $menuStructure, $deletedNodes);
+
+        $msgType = !$result ? 'danger' : 'success';
+        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
 
         flash_messages()
-            ->addMessages($result['messages'], $msgType)
+            ->addMessages($msg, $msgType)
             ->showMessagesOnSession();
 
         if ($result['error']) {
@@ -183,7 +196,9 @@ class MenuController extends BaseAdminController
 
         do_action(BASE_ACTION_AFTER_DELETE, WEBED_MENUS, $id, $result);
 
-        return response()->json($result, $result['response_code']);
+        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
+        $code = $result ? \Constants::SUCCESS_NO_CONTENT_CODE : \Constants::ERROR_CODE;
+        return response()->json(response_with_messages($msg, !$result, $code), $code);
     }
 
     protected function parseData(Request $request)

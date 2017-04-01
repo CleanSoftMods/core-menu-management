@@ -9,7 +9,9 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
 
     protected $primaryKey = 'id';
 
-    protected $fillable = [];
+    protected $fillable = [
+        'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target', 'sort_order',
+    ];
 
     public $timestamps = true;
 

@@ -1,20 +1,23 @@
 <?php namespace WebEd\Base\Menu\Repositories\Contracts;
 
+use Illuminate\Support\Collection;
+use WebEd\Base\Menu\Models\Menu;
+
 interface MenuNodeRepositoryContract
 {
     /**
-     * $messages
-     * @param $menuId
-     * @param $node
+     * @param int $menuId
+     * @param array $nodeData
+     * @param int $order
      * @param null $parentId
+     * @return int|null
      */
-    public function updateMenuNode($menuId, $node, $order, $parentId = null);
+    public function updateMenuNode($menuId, array $nodeData, $order, $parentId = null);
 
     /**
-     * Get menu nodes
-     * @param $menuId
+     * @param Menu|int $menuId
      * @param null|int $parentId
-     * @return mixed|null
+     * @return Collection|null
      */
     public function getMenuNodes($menuId, $parentId = null);
 }
