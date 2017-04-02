@@ -7,6 +7,7 @@ return [
     'edit_menu' => 'Edit menu',
     'menus' => 'Menus',
     'menus_management' => 'Menus management',
+    'menu' => 'Menu',
 
     'custom_link' => 'Custom link',
     'title' => 'Title',

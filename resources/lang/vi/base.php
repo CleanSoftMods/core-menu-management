@@ -7,6 +7,7 @@ return [
     'edit_menu' => 'Chỉnh sửa thanh thực đơn',
     'menus' => 'Thanh thực đơn',
     'menus_management' => 'Quản lý các thanh thực đơn',
+    'menu' => 'Thanh thực đơn',
 
     'custom_link' => 'Liên kết tùy chỉnh',
     'title' => 'Tiêu đề',

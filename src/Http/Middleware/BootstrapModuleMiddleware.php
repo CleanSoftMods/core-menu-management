@@ -64,6 +64,12 @@ class BootstrapModuleMiddleware
                 ];
             });
 
+        admin_quick_link()->register('menu', [
+            'title' => trans('webed-menus::base.menu'),
+            'url' => route('admin::menus.create.get'),
+            'icon' => 'fa fa-bars',
+        ]);
+
         return $next($request);
     }
 }
