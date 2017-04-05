@@ -4,7 +4,7 @@ use Illuminate\Support\ServiceProvider;
 
 class InstallModuleServiceProvider extends ServiceProvider
 {
-    protected $module = 'webed-menu';
+    protected $module = 'webed-menus';
 
     /**
      * Bootstrap the application services.
