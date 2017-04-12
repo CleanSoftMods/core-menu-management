@@ -46,7 +46,7 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
         return array_get($this->relatedModelInfo, 'url');
     }
 
-    private function resolveRelatedModel()
+    protected function resolveRelatedModel()
     {
         if ($this->type === 'custom-link') {
             return null;
