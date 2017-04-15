@@ -174,7 +174,7 @@ class MenuController extends BaseAdminController
             return redirect()->back();
         }
 
-        do_action(BASE_ACTION_AFTER_UPDATE, WEBED_MENUS, $result);
+        do_action(BASE_ACTION_AFTER_UPDATE, WEBED_MENUS, $id, $result);
 
         if ($request->has('_continue_edit')) {
             return redirect()->back();
