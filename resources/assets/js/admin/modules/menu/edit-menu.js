@@ -59,9 +59,10 @@ let WebEdManageMenu = function () {
 
         let renderListGroup = function (data) {
             let $listGroup = $(MENU_NESTABLE_TEMPLATES.listGroup);
-            data.forEach(function (value, index) {
+            _.each(data, function (value, index) {
                 $listGroup.append(renderListItem(value));
             });
+
             return $listGroup;
         };
 
