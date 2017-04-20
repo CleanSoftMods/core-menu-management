@@ -15,10 +15,10 @@
 @section('content')
     <div class="layout-2columns sidebar-left">
         <div class="column left">
-            @php do_action(BASE_ACTION_META_BOXES, 'top-sidebar', WEBED_MENUS . '.edit', $object) @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'top-sidebar', WEBED_MENUS, $object) @endphp
             @include('webed-menus::admin._partials.custom-link')
             {!! menus_management()->renderWidgets() !!}
-            @php do_action(BASE_ACTION_META_BOXES, 'bottom-sidebar', WEBED_MENUS . '.edit', $object) @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'bottom-sidebar', WEBED_MENUS, $object) @endphp
         </div>
         <div class="column main">
             {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate']) !!}
@@ -85,7 +85,7 @@
                     </button>
                 </div>
             </div>
-            @php do_action(BASE_ACTION_META_BOXES, 'main', WEBED_MENUS . '.edit', $object) @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'main', WEBED_MENUS, $object) @endphp
             {!! Form::close() !!}
         </div>
     </div>

@@ -59,7 +59,7 @@ class BootstrapModuleMiddleware
                 return [
                     'main_menu',
                     $menusArr,
-                    get_settings('main_menu'),
+                    get_setting('main_menu'),
                     ['class' => 'form-control']
                 ];
             });
