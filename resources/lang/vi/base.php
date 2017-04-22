@@ -33,7 +33,7 @@ return [
     'settings' => [
         'main_menu' => [
             'label' => 'Thanh thực đơn chính',
-            'helper' => 'Thanh thực đơn chính của ứng dụng. Mặc định theme sẽ lấy dữ liệu từ thanh thực đơn này'
+            'helper' => 'Thanh thực đơn chính của ứng dụng. Mặc định giao diện sẽ lấy dữ liệu từ thanh thực đơn này'
         ],
     ],
 ];
