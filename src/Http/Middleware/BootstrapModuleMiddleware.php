@@ -47,18 +47,14 @@ class BootstrapModuleMiddleware
                 /**
                  * @var MenuRepository $menus
                  */
-                $menus = app(MenuRepositoryContract::class);
-                $menus = $menus->getWhere(['status' => 'activated']);
-
-                $menusArr = [];
-
-                foreach ($menus as $menu) {
-                    $menusArr[$menu->slug] = $menu->title;
-                }
+                $menus = app(MenuRepositoryContract::class)
+                    ->getWhere(['status' => 'activated'], ['slug', 'title'])
+                    ->pluck('title', 'slug')
+                    ->toArray();
 
                 return [
                     'main_menu',
-                    $menusArr,
+                    $menus,
                     get_setting('main_menu'),
                     ['class' => 'form-control']
                 ];
