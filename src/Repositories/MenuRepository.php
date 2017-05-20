@@ -1,17 +1,13 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
-use WebEd\Base\Caching\Services\Traits\Cacheable;
 use WebEd\Base\Menu\Models\Menu;
 use WebEd\Base\Models\Contracts\BaseModelContract;
 use WebEd\Base\Repositories\Eloquent\EloquentBaseRepository;
-use WebEd\Base\Caching\Services\Contracts\CacheableContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
 use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
 
-class MenuRepository extends EloquentBaseRepository implements MenuRepositoryContract, CacheableContract
+class MenuRepository extends EloquentBaseRepository implements MenuRepositoryContract
 {
-    use Cacheable;
-
     /**
      * @var MenuNodeRepository|MenuNodeRepositoryCacheDecorator
      */
