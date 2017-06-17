@@ -24,7 +24,7 @@ class MenuController extends BaseAdminController
         $this->middleware(function ($request, $next) {
             $this->getDashboardMenu($this->module);
 
-            $this->breadcrumbs->addLink(trans('webed-menus::base.menus'), 'admin::menus.index.get');
+            $this->breadcrumbs->addLink(trans($this->module . '::base.menus'), 'admin::menus.index.get');
 
             return $next($request);
         });
@@ -32,7 +32,7 @@ class MenuController extends BaseAdminController
 
     public function getIndex(MenusListDataTable $menusListDataTable)
     {
-        $this->setPageTitle(trans('webed-menus::base.menus_management'));
+        $this->setPageTitle(trans($this->module . '::base.menus_management'));
 
         $this->dis['dataTable'] = $menusListDataTable->run();
 
@@ -74,8 +74,8 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
-        $this->setPageTitle(trans('webed-menus::base.create_menu'));
-        $this->breadcrumbs->addLink(trans('webed-menus::base.create_menu'));
+        $this->setPageTitle(trans($this->module . '::base.create_menu'));
+        $this->breadcrumbs->addLink(trans($this->module . '::base.create_menu'));
 
         return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'create.get')->viewAdmin('create');
     }
@@ -119,7 +119,7 @@ class MenuController extends BaseAdminController
         $item = $this->repository->getMenu($id);
         if (!$item) {
             flash_messages()
-                ->addMessages(trans('webed-menus::base.menu_not_exists'), 'danger')
+                ->addMessages(trans($this->module . '::base.menu_not_exists'), 'danger')
                 ->showMessagesOnSession();
 
             return redirect()->back();
@@ -133,8 +133,8 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
-        $this->setPageTitle(trans('webed-menus::base.edit_menu'), '#' . $item->id);
-        $this->breadcrumbs->addLink(trans('webed-menus::base.edit_menu'));
+        $this->setPageTitle(trans($this->module . '::base.edit_menu'), '#' . $item->id);
+        $this->breadcrumbs->addLink(trans($this->module . '::base.edit_menu'));
 
         $this->dis['menuStructure'] = json_encode($item->all_menu_nodes);
 
@@ -148,7 +148,7 @@ class MenuController extends BaseAdminController
         $item = $this->repository->find($id);
         if (!$item) {
             flash_messages()
-                ->addMessages(trans('webed-menus::base.menu_not_exists'), 'danger')
+                ->addMessages(trans($this->module . '::base.menu_not_exists'), 'danger')
                 ->showMessagesOnSession();
 
             return redirect()->back();

@@ -64,15 +64,17 @@ class DashboardMenu
             $calledClass = debug_backtrace()[2];
             throw new \RuntimeException('Menu id not specified: ' . $calledClass['class'] . '@' . $calledClass['function']);
         }
+
         if (isset($this->links[$id])) {
             $calledClass = debug_backtrace()[2];
             throw new \RuntimeException('Menu id already exists: ' . $id . ' on class ' . $calledClass['class'] . '@' . $calledClass['function']);
         }
-        $parentId = $options['parent_id'];
+
+        /*$parentId = $options['parent_id'];
         if ($parentId && !isset($this->links[$parentId])) {
             $calledClass = debug_backtrace()[2];
             throw new \RuntimeException('Parent id not exists: ' . $id . ' on class ' . $calledClass['class'] . '@' . $calledClass['function']);
-        }
+        }*/
 
         $this->links[$id] = $options;
 
@@ -80,12 +82,15 @@ class DashboardMenu
     }
 
     /**
-     * @param $id
+     * @param array|string $id
      * @return $this
      */
     public function removeItem($id)
     {
-        array_forget($this->links, $id);
+        $id = is_array($id) ? $id : func_get_args();
+        foreach ($id as $item) {
+            array_forget($this->links, $item);
+        }
 
         return $this;
     }
