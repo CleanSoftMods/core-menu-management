@@ -10,9 +10,11 @@ class MenusListDataTable extends AbstractDataTables
 {
     protected $model;
 
+    protected $screenName = WEBED_MENUS;
+
     public function __construct()
     {
-        $this->model = Menu::select('id', 'created_at', 'title', 'slug', 'status');
+        $this->model = do_filter(FRONT_FILTER_DATA_TABLES_MODEL, Menu::select('id', 'created_at', 'title', 'slug', 'status'), $this->screenName);
     }
 
     /**
@@ -64,6 +66,21 @@ class MenusListDataTable extends AbstractDataTables
     public function run()
     {
         $this->setAjaxUrl(route('admin::menus.index.post'), 'POST');
+
+        $this
+            ->addFilter(0, form()->text('title', '', [
+                'class' => 'form-control form-filter input-sm',
+                'placeholder' => trans('webed-core::datatables.search') . '...',
+            ]))
+            ->addFilter(1, form()->text('slug', '', [
+                'class' => 'form-control form-filter input-sm',
+                'placeholder' => trans('webed-core::datatables.search') . '...',
+            ]))
+            ->addFilter(2, form()->select('status', [
+                '' => trans('webed-core::datatables.select') . '...',
+                'activated' => trans('webed-core::base.status.activated'),
+                'disabled' => trans('webed-core::base.status.disabled'),
+            ], null, ['class' => 'form-control form-filter input-sm']));
 
         return $this->view();
     }

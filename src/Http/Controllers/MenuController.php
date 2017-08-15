@@ -24,7 +24,7 @@ class MenuController extends BaseAdminController
         $this->middleware(function ($request, $next) {
             $this->getDashboardMenu($this->module);
 
-            $this->breadcrumbs->addLink(trans($this->module . '::base.menus'), 'admin::menus.index.get');
+            $this->breadcrumbs->addLink(trans($this->module . '::base.menus'), route('admin::menus.index.get'));
 
             return $next($request);
         });
@@ -74,6 +74,8 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
 
+        do_action(BASE_ACTION_BEFORE_CREATE, WEBED_MENUS, 'create.get');
+
         $this->setPageTitle(trans($this->module . '::base.create_menu'));
         $this->breadcrumbs->addLink(trans($this->module . '::base.create_menu'));
 
@@ -82,6 +84,8 @@ class MenuController extends BaseAdminController
 
     public function postCreate(CreateMenuRequest $request)
     {
+        do_action(BASE_ACTION_BEFORE_CREATE, WEBED_MENUS, 'create.post');
+
         $data = $this->parseData($request);
         $data['created_by'] = $this->loggedInUser->id;
 
@@ -96,11 +100,11 @@ class MenuController extends BaseAdminController
             ->addMessages($msg, $msgType)
             ->showMessagesOnSession();
 
+        do_action(BASE_ACTION_AFTER_CREATE, WEBED_MENUS, $result);
+
         if (!$result) {
             return redirect()->back()->withInput();
         }
-
-        do_action(BASE_ACTION_AFTER_CREATE, WEBED_MENUS, $result);
 
         if ($request->has('_continue_edit')) {
             return redirect()->to(route('admin::menus.edit.get', ['id' => $result]));
@@ -125,7 +129,7 @@ class MenuController extends BaseAdminController
             return redirect()->back();
         }
 
-        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS);
+        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS, 'edit.get');
 
         $this->assets
             ->addStylesheets('jquery-nestable')
@@ -154,7 +158,7 @@ class MenuController extends BaseAdminController
             return redirect()->back();
         }
 
-        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS);
+        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS, 'edit.post');
 
         $data = $this->parseData($request);
 

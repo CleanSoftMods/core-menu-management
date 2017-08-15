@@ -21,7 +21,11 @@
             @php do_action(BASE_ACTION_META_BOXES, 'bottom-sidebar', WEBED_MENUS, null) @endphp
         </div>
         <div class="column main">
-            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate']) !!}
+            {!! form()->open([
+                'class' => 'js-validate-form',
+                'novalidate' => 'novalidate',
+                'url' => request()->fullUrl(),
+            ]) !!}
             <textarea name="menu_structure"
                       id="menu_structure"
                       class="hidden"
@@ -86,7 +90,7 @@
                 </div>
             </div>
             @php do_action(BASE_ACTION_META_BOXES, 'main', WEBED_MENUS, null) @endphp
-            {!! Form::close() !!}
+            {!! form()->close() !!}
         </div>
     </div>
 @endsection

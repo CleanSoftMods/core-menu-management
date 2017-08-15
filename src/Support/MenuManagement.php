@@ -20,7 +20,7 @@ class MenuManagement
      */
     public function registerWidget($title, $type, $data)
     {
-        $this->widgetBoxes[] = [
+        $this->widgetBoxes[$type] = [
             'title' => $title,
             'type' => $type,
             'data' => $data,
