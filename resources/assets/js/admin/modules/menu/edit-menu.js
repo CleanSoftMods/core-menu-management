@@ -93,7 +93,7 @@ let WebEdManageMenu = function () {
             }
 
             $listItem.data('id', Helpers.arrayGet(data, 'id', ''));
-            $listItem.data('related_id', Helpers.arrayGet(data, 'related_id', ''));
+            $listItem.data('entity_id', Helpers.arrayGet(data, 'entity_id', ''));
             $listItem.data('type', Helpers.arrayGet(data, 'type', ''));
             $listItem.data('title', Helpers.arrayGet(data, 'title', ''));
             $listItem.data('model_title', Helpers.arrayGet(data, 'model_title', ''));
@@ -140,7 +140,7 @@ let WebEdManageMenu = function () {
             let addCustomLink = function ($_box) {
                 let data = {
                     id: null,
-                    related_id: null,
+                    entity_id: null,
                     type: $_box.data('type'),
                     title: $_box.find('input[type=text][data-field=title]').val(),
                     model_title: null,
@@ -169,7 +169,7 @@ let WebEdManageMenu = function () {
                     let $current = $(this);
                     let $label = $current.closest('label');
                     let currentData = $.extend(true, {
-                        related_id: $current.val(),
+                        entity_id: $current.val(),
                         title: null,
                         model_title: $label.text().trim(),
                         url: '',

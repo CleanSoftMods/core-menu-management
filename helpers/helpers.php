@@ -52,7 +52,7 @@ if (!function_exists('webed_render_menu')) {
             'active_class' => 'active current-menu-item',
             'menu_active' => [
                 'type' => 'custom-link',
-                'related_id' => null,
+                'entity_id' => null,
             ],
             'view' => 'webed-menus::front._renderer.menu',
         ], $options);
@@ -73,10 +73,10 @@ if (!function_exists('is_menu_item_active')) {
      * Determine a menu item will be active or not
      * @param $node
      * @param $type
-     * @param int|array $relatedId
+     * @param int|array $entityId
      * @return bool
      */
-    function is_menu_item_active($node, $type, $relatedId)
+    function is_menu_item_active($node, $type, $entityId)
     {
         switch ($type) {
             case 'custom-link':
@@ -86,12 +86,12 @@ if (!function_exists('is_menu_item_active')) {
                 break;
             default:
                 if($type === $node->type) {
-                    if(is_array($relatedId)) {
-                        if(in_array($node->related_id, $relatedId)) {
+                    if(is_array($entityId)) {
+                        if(in_array($node->entity_id, $entityId)) {
                             return true;
                         }
                     } else {
-                        if ((int)$relatedId === (int)$node->related_id) {
+                        if ((int)$entityId === (int)$node->entity_id) {
                             return true;
                         }
                     }
@@ -107,17 +107,17 @@ if (!function_exists('parent_active_menu_item_ids')) {
      * Get all active
      * @param $node
      * @param $type
-     * @param $relatedId
+     * @param $entityId
      * @param array $result
      * @return array
      */
-    function parent_active_menu_item_ids($node, $type, $relatedId, array &$result = [])
+    function parent_active_menu_item_ids($node, $type, $entityId, array &$result = [])
     {
         foreach ($node->children as $child) {
-            if (is_menu_item_active($child, $type, $relatedId)) {
+            if (is_menu_item_active($child, $type, $entityId)) {
                 $result[] = (int)$node->id;
             }
-            parent_active_menu_item_ids($child, $type, $relatedId, $result);
+            parent_active_menu_item_ids($child, $type, $entityId, $result);
         }
         return $result;
     }

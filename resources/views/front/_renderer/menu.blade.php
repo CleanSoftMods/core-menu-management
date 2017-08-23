@@ -13,12 +13,12 @@
                     $childActivatedNodes = parent_active_menu_item_ids(
                         $node,
                         array_get($options, 'menu_active.type'),
-                        array_get($options, 'menu_active.related_id')
+                        array_get($options, 'menu_active.entity_id')
                     );
                     $isMenuItemActive = is_menu_item_active(
                         $node,
                         array_get($options, 'menu_active.type'),
-                        array_get($options, 'menu_active.related_id')
+                        array_get($options, 'menu_active.entity_id')
                     );
                 @endphp
                 <li class="menu-item

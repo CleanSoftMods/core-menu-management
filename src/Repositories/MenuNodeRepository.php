@@ -24,14 +24,14 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
         $result = $this->createOrUpdate(array_get($nodeData, 'id'), [
             'menu_id' => $menuId,
             'parent_id' => $parentId,
-            'related_id' => array_get($nodeData, 'related_id') ?: null,
+            'entity_id' => array_get($nodeData, 'entity_id') ?: null,
             'type' => array_get($nodeData, 'type'),
             'title' => array_get($nodeData, 'title'),
             'icon_font' => array_get($nodeData, 'icon_font'),
             'css_class' => array_get($nodeData, 'css_class'),
             'target' => array_get($nodeData, 'target'),
             'url' => array_get($nodeData, 'url'),
-            'sort_order' => $order,
+            'order' => $order,
         ]);
 
         if(!$result) {
@@ -70,8 +70,8 @@ class MenuNodeRepository extends EloquentBaseRepository implements MenuNodeRepos
         if (!$this->allRelatedNodes) {
             $this->allRelatedNodes = $this->model
                 ->where('menu_id', $menuId->id)
-                ->select(['id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target'])
-                ->orderBy('sort_order', 'ASC')
+                ->select(['id', 'menu_id', 'parent_id', 'entity_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target'])
+                ->orderBy('order', 'ASC')
                 ->get();
         }
 

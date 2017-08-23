@@ -5,12 +5,12 @@ use WebEd\Base\Models\EloquentBase as BaseModel;
 
 class MenuNode extends BaseModel implements MenuNodeModelContract
 {
-    protected $table = 'menu_nodes';
+    protected $table = 'we_menu_nodes';
 
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target', 'sort_order',
+        'menu_id', 'parent_id', 'entity_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target', 'order',
     ];
 
     public $timestamps = true;
@@ -51,7 +51,7 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
         if ($this->type === 'custom-link') {
             return null;
         }
-        $this->relatedModelInfo = menus_management()->getObjectInfoByType($this->type, $this->related_id);
+        $this->relatedModelInfo = menus_management()->getObjectInfoByType($this->type, $this->entity_id);
 
         return $this->relatedModelInfo;
     }
