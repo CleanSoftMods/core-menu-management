@@ -2,6 +2,9 @@
 
 use WebEd\Base\Http\Controllers\BaseAdminController;
 use WebEd\Base\Http\Requests\Request;
+use WebEd\Base\Menu\Actions\CreateMenuAction;
+use WebEd\Base\Menu\Actions\DeleteMenuAction;
+use WebEd\Base\Menu\Actions\UpdateMenuAction;
 use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
 use WebEd\Base\Menu\Http\Requests\CreateMenuRequest;
 use WebEd\Base\Menu\Http\Requests\UpdateMenuRequest;
@@ -30,6 +33,10 @@ class MenuController extends BaseAdminController
         });
     }
 
+    /**
+     * @param MenusListDataTable $menusListDataTable
+     * @return mixed
+     */
     public function getIndex(MenusListDataTable $menusListDataTable)
     {
         $this->setPageTitle(trans($this->module . '::base.menus_management'));
@@ -39,27 +46,30 @@ class MenuController extends BaseAdminController
         return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'index.get')->viewAdmin('list');
     }
 
+    /**
+     * @param MenusListDataTable $menusListDataTable
+     * @return mixed
+     */
     public function postListing(MenusListDataTable $menusListDataTable)
     {
         return do_filter(BASE_FILTER_CONTROLLER, $menusListDataTable, WEBED_MENUS, 'index.post', $this);
     }
 
     /**
-     * Update page status
+     * @param UpdateMenuAction $action
      * @param $id
      * @param $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public function postUpdateStatus($id, $status)
+    public function postUpdateStatus(UpdateMenuAction $action, $id, $status)
     {
         $data = [
             'status' => $status
         ];
-        $result = $this->repository->update($id, $data);
 
-        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
-        $code = $result ? \Constants::SUCCESS_NO_CONTENT_CODE : \Constants::ERROR_CODE;
-        return response()->json(response_with_messages($msg, !$result, $code), $code);
+        $result = $action->run($id, $data);
+
+        return response()->json($result, $result['response_code']);
     }
 
     /**
@@ -70,9 +80,9 @@ class MenuController extends BaseAdminController
     {
         $this->assets
             ->addStylesheets('jquery-nestable')
-            ->addStylesheetsDirectly('admin/modules/menu/menu-nestable.css')
+            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
             ->addJavascripts('jquery-nestable')
-            ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
+            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
         do_action(BASE_ACTION_BEFORE_CREATE, WEBED_MENUS, 'create.get');
 
@@ -82,32 +92,32 @@ class MenuController extends BaseAdminController
         return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'create.get')->viewAdmin('create');
     }
 
-    public function postCreate(CreateMenuRequest $request)
+    /**
+     * @param CreateMenuRequest $request
+     * @param CreateMenuAction $action
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postCreate(CreateMenuRequest $request, CreateMenuAction $action)
     {
-        do_action(BASE_ACTION_BEFORE_CREATE, WEBED_MENUS, 'create.post');
-
         $data = $this->parseData($request);
         $data['created_by'] = $this->loggedInUser->id;
 
         $menuStructure = json_decode($this->request->get('menu_structure'), true);
 
-        $result = $this->repository->createMenu($data, $menuStructure);
+        $result = $action->run($data, $menuStructure);
 
-        $msgType = !$result ? 'danger' : 'success';
-        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
+        $msgType = $result['error'] ? 'danger' : 'success';
 
         flash_messages()
-            ->addMessages($msg, $msgType)
+            ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        do_action(BASE_ACTION_AFTER_CREATE, WEBED_MENUS, $result);
-
-        if (!$result) {
+        if ($result['error']) {
             return redirect()->back()->withInput();
         }
 
         if ($request->has('_continue_edit')) {
-            return redirect()->to(route('admin::menus.edit.get', ['id' => $result]));
+            return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']['id']]));
         }
 
         return redirect()->to(route('admin::menus.index.get'));
@@ -133,9 +143,9 @@ class MenuController extends BaseAdminController
 
         $this->assets
             ->addStylesheets('jquery-nestable')
-            ->addStylesheetsDirectly('admin/modules/menu/menu-nestable.css')
+            ->addStylesheetsDirectly(asset('admin/modules/menu/menu-nestable.css'))
             ->addJavascripts('jquery-nestable')
-            ->addJavascriptsDirectly('admin/modules/menu/edit-menu.js');
+            ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
         $this->setPageTitle(trans($this->module . '::base.edit_menu'), '#' . $item->id);
         $this->breadcrumbs->addLink(trans($this->module . '::base.edit_menu'));
@@ -147,40 +157,27 @@ class MenuController extends BaseAdminController
         return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'edit.get', $id)->viewAdmin('edit');
     }
 
-    public function postEdit(UpdateMenuRequest $request, $id)
+    /**
+     * @param UpdateMenuRequest $request
+     * @param UpdateMenuAction $action
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postEdit(UpdateMenuRequest $request, UpdateMenuAction $action, $id)
     {
-        $item = $this->repository->find($id);
-        if (!$item) {
-            flash_messages()
-                ->addMessages(trans($this->module . '::base.menu_not_exists'), 'danger')
-                ->showMessagesOnSession();
-
-            return redirect()->back();
-        }
-
-        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS, 'edit.post');
-
         $data = $this->parseData($request);
-
         $deletedNodes = json_decode($this->request->get('deleted_nodes'), true);
         $menuStructure = json_decode($this->request->get('menu_structure'), true);
 
-        $result = $this->repository->updateMenu($item, $data, $menuStructure, $deletedNodes);
+        $result = $action->run($id, $data, $menuStructure, $deletedNodes);
 
-        $msgType = !$result ? 'danger' : 'success';
-        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
+        $msgType = $result['error'] ? 'danger' : 'success';
 
         flash_messages()
-            ->addMessages($msg, $msgType)
+            ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        if ($result['error']) {
-            return redirect()->back();
-        }
-
-        do_action(BASE_ACTION_AFTER_UPDATE, WEBED_MENUS, $id, $result);
-
-        if ($request->has('_continue_edit')) {
+        if ($result['error'] || $this->request->has('_continue_edit')) {
             return redirect()->back();
         }
 
@@ -192,19 +189,17 @@ class MenuController extends BaseAdminController
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteDelete($id)
+    public function deleteDelete(DeleteMenuAction $action, $id)
     {
-        $id = do_filter(BASE_FILTER_BEFORE_DELETE, $id, WEBED_MENUS);
+        $result = $action->run($id);
 
-        $result = $this->repository->delete($id);
-
-        do_action(BASE_ACTION_AFTER_DELETE, WEBED_MENUS, $id, $result);
-
-        $msg = $result ? trans('webed-core::base.form.request_completed') : trans('webed-core::base.form.error_occurred');
-        $code = $result ? \Constants::SUCCESS_NO_CONTENT_CODE : \Constants::ERROR_CODE;
-        return response()->json(response_with_messages($msg, !$result, $code), $code);
+        return response()->json($result, $result['response_code']);
     }
 
+    /**
+     * @param Request $request
+     * @return array
+     */
     protected function parseData(Request $request)
     {
         return [

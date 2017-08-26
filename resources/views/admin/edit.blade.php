@@ -21,7 +21,7 @@
             @php do_action(BASE_ACTION_META_BOXES, 'bottom-sidebar', WEBED_MENUS, $object) @endphp
         </div>
         <div class="column main">
-            {!! Form::open(['class' => 'js-validate-form', 'novalidate' => 'novalidate']) !!}
+            {!! form()->open(['class' => 'js-validate-form', 'novalidate' => 'novalidate']) !!}
             <textarea name="menu_structure"
                       id="menu_structure"
                       class="hidden"
@@ -61,8 +61,8 @@
                             <b>{{ trans('webed-menus::base.status') }}</b>
                         </label>
                         {!! form()->select('status', [
-                            'activated' => trans('webed-core::base.status.activated'),
-                            'disabled' => trans('webed-core::base.status.disabled'),
+                            1 => trans('webed-core::base.status.activated'),
+                            0 => trans('webed-core::base.status.disabled'),
                         ], (isset($object->status) ? $object->status : ''), ['class' => 'form-control']) !!}
                     </div>
                     <div class="form-group">
@@ -86,7 +86,7 @@
                 </div>
             </div>
             @php do_action(BASE_ACTION_META_BOXES, 'main', WEBED_MENUS, $object) @endphp
-            {!! Form::close() !!}
+            {!! form()->close() !!}
         </div>
     </div>
 @endsection

@@ -1,5 +1,6 @@
 <?php namespace WebEd\Base\Menu\Repositories;
 
+use Illuminate\Support\Facades\DB;
 use WebEd\Base\Menu\Models\Menu;
 use WebEd\Base\Models\Contracts\BaseModelContract;
 use WebEd\Base\Repositories\Eloquent\EloquentBaseRepository;
@@ -31,10 +32,11 @@ class MenuRepository extends EloquentBaseRepository implements MenuRepositoryCon
         if (!$result || !$menuStructure) {
             return $result;
         }
+        DB::beginTransaction();
         if ($menuStructure !== null) {
             $this->updateMenuStructure($result, $menuStructure);
         }
-
+        DB::commit();
         return $result;
     }
 
@@ -52,7 +54,7 @@ class MenuRepository extends EloquentBaseRepository implements MenuRepositoryCon
         if (!$result || !$menuStructure) {
             return $result;
         }
-
+        DB::beginTransaction();
         if($deletedNodes) {
             $this->menuNodeRepository->delete($deletedNodes);
         }
@@ -60,6 +62,7 @@ class MenuRepository extends EloquentBaseRepository implements MenuRepositoryCon
         if ($menuStructure !== null) {
             $this->updateMenuStructure($result, $menuStructure);
         }
+        DB::commit();
 
         return $result;
     }

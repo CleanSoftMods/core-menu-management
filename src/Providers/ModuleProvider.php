@@ -1,10 +1,6 @@
 <?php namespace WebEd\Base\Menu\Providers;
 
-use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
-use WebEd\Base\Menu\Facades\DashboardMenuFacade;
-use WebEd\Base\Menu\Facades\MenuManagementFacade;
-use WebEd\Base\Menu\Http\Middleware\BootstrapModuleMiddleware;
 
 class ModuleProvider extends ServiceProvider
 {
@@ -50,16 +46,5 @@ class ModuleProvider extends ServiceProvider
 
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(RepositoryServiceProvider::class);
-
-        //Register related facades
-        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('MenuManagement', MenuManagementFacade::class);
-        $loader->alias('DashboardMenu', DashboardMenuFacade::class);
-
-        /**
-         * @var Router $router
-         */
-        $router = $this->app['router'];
-        $router->pushMiddlewareToGroup('web', BootstrapModuleMiddleware::class);
     }
 }

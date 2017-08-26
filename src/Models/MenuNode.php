@@ -5,7 +5,7 @@ use WebEd\Base\Models\EloquentBase as BaseModel;
 
 class MenuNode extends BaseModel implements MenuNodeModelContract
 {
-    protected $table = 'we_menu_nodes';
+    protected $table = 'menu_nodes';
 
     protected $primaryKey = 'id';
 

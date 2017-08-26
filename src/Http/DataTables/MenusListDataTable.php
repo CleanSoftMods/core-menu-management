@@ -78,8 +78,8 @@ class MenusListDataTable extends AbstractDataTables
             ]))
             ->addFilter(2, form()->select('status', [
                 '' => trans('webed-core::datatables.select') . '...',
-                'activated' => trans('webed-core::base.status.activated'),
-                'disabled' => trans('webed-core::base.status.disabled'),
+                1 => trans('webed-core::base.status.activated'),
+                0 => trans('webed-core::base.status.disabled'),
             ], null, ['class' => 'form-control form-filter input-sm']));
 
         return $this->view();
@@ -93,18 +93,19 @@ class MenusListDataTable extends AbstractDataTables
         return datatable()->of($this->model)
             ->rawColumns(['actions'])
             ->editColumn('status', function ($item) {
-                return html()->label(trans('webed-core::base.status.' . $item->status), $item->status);
+                $status = $item->status ? 'activated' : 'disabled';
+                return html()->label(trans('webed-core::base.status.' . $status), $status);
             })
             ->addColumn('actions', function ($item) {
                 /*Edit link*/
-                $activeLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 'activated']);
-                $disableLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 'disabled']);
+                $activeLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 1]);
+                $disableLink = route('admin::menus.update-status.post', ['id' => $item->id, 'status' => 0]);
                 $deleteLink = route('admin::menus.delete.delete', ['id' => $item->id]);
 
                 /*Buttons*/
                 $editBtn = link_to(route('admin::menus.edit.get', ['id' => $item->id]), trans('webed-core::datatables.edit'), ['class' => 'btn btn-sm btn-outline green']);
 
-                $activeBtn = ($item->status != 'activated') ? form()->button(trans('webed-core::datatables.active'), [
+                $activeBtn = ($item->status != 1) ? form()->button(trans('webed-core::datatables.active'), [
                     'title' => trans('webed-core::datatables.active_this_item'),
                     'data-ajax' => $activeLink,
                     'data-method' => 'POST',
@@ -113,7 +114,7 @@ class MenusListDataTable extends AbstractDataTables
                     'type' => 'button',
                 ]) : '';
 
-                $disableBtn = ($item->status != 'disabled') ? form()->button(trans('webed-core::datatables.disable'), [
+                $disableBtn = ($item->status != 0) ? form()->button(trans('webed-core::datatables.disable'), [
                     'title' => trans('webed-core::datatables.disable_this_item'),
                     'data-ajax' => $disableLink,
                     'data-method' => 'POST',

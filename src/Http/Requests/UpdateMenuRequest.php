@@ -8,8 +8,8 @@ class UpdateMenuRequest extends Request
     {
         return [
             'title' => 'string|max:255|required',
-            'slug' => 'string|max:255|nullable',
-            'status' => 'string|required|in:activated,disabled',
+            'slug' => 'string|max:255|nullable|unique:' . webed_db_prefix() . 'menus,slug,' . request()->route()->parameter('id'),
+            'status' => 'required',
             'menu_structure' => 'required',
             'deleted_nodes' => 'required'
         ];

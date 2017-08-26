@@ -65,8 +65,8 @@
                             <b>{{ trans('webed-menus::base.status') }}</b>
                         </label>
                         {!! form()->select('status', [
-                            'activated' => trans('webed-core::base.status.activated'),
-                            'disabled' => trans('webed-core::base.status.disabled'),
+                            1 => trans('webed-core::base.status.activated'),
+                            0 => trans('webed-core::base.status.disabled'),
                         ], old('status'), ['class' => 'form-control']) !!}
                     </div>
                     <div class="form-group">
