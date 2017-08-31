@@ -48,7 +48,7 @@ class BootstrapModuleServiceProvider extends ServiceProvider
                 'helper' => trans('webed-menus::base.settings.main_menu.helper'),
             ], function () {
                 $menus = app(MenuRepositoryContract::class)
-                    ->getWhere(['status' => 'activated'], ['slug', 'title'])
+                    ->getWhere(['status' => 1], ['slug', 'title'])
                     ->pluck('title', 'slug')
                     ->toArray();
 

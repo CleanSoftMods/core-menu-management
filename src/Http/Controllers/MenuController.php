@@ -63,11 +63,9 @@ class MenuController extends BaseAdminController
      */
     public function postUpdateStatus(UpdateMenuAction $action, $id, $status)
     {
-        $data = [
+        $result = $action->run($id, [
             'status' => $status
-        ];
-
-        $result = $action->run($id, $data);
+        ]);
 
         return response()->json($result, $result['response_code']);
     }

@@ -31,7 +31,7 @@ if (!function_exists('webed_render_menu')) {
 
         $menu = $repo->findWhere([
             'slug' => $slug,
-            'status' => 'activated',
+            'status' => 1,
         ]);
 
         if (!$menu) {
