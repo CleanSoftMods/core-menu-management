@@ -1,15 +1,19 @@
-<?php namespace WebEd\Base\Menu\Http\Controllers;
+<?php namespace CleanSoft\Modules\Core\Menu\Http\Controllers;
 
-use WebEd\Base\Core\Http\Controllers\BaseAdminController;
-use WebEd\Base\Menu\Http\DataTables\MenusListDataTable;
-use WebEd\Base\Menu\Http\Requests\CreateMenuRequest;
-use WebEd\Base\Menu\Http\Requests\UpdateMenuRequest;
-use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
-use WebEd\Base\Menu\Repositories\MenuRepository;
+use CleanSoft\Modules\Core\Http\Controllers\BaseAdminController;
+use CleanSoft\Modules\Core\Http\Requests\Request;
+use CleanSoft\Modules\Core\Menu\Actions\CreateMenuAction;
+use CleanSoft\Modules\Core\Menu\Actions\DeleteMenuAction;
+use CleanSoft\Modules\Core\Menu\Actions\UpdateMenuAction;
+use CleanSoft\Modules\Core\Menu\Http\DataTables\MenusListDataTable;
+use CleanSoft\Modules\Core\Menu\Http\Requests\CreateMenuRequest;
+use CleanSoft\Modules\Core\Menu\Http\Requests\UpdateMenuRequest;
+use CleanSoft\Modules\Core\Menu\Repositories\Contracts\MenuRepositoryContract;
+use CleanSoft\Modules\Core\Menu\Repositories\MenuRepository;
 
 class MenuController extends BaseAdminController
 {
-    protected $module = 'webed-menu';
+    protected $module = 'webed-menus';
 
     /**
      * @param MenuRepository $repository
@@ -20,37 +24,48 @@ class MenuController extends BaseAdminController
 
         $this->repository = $repository;
 
-        $this->getDashboardMenu($this->module);
+        $this->middleware(function ($request, $next) {
+            $this->getDashboardMenu($this->module);
 
-        $this->breadcrumbs->addLink('Menus', 'admin::menus.index.get');
-    }
+            $this->breadcrumbs->addLink(trans($this->module . '::base.menus'), route('admin::menus.index.get'));
 
-    public function getIndex(MenusListDataTable $menusListDataTable)
-    {
-        $this->setPageTitle('Menus management');
-
-        $this->dis['dataTable'] = $menusListDataTable->run();
-
-        return do_filter('menus.index.get', $this)->viewAdmin('list');
-    }
-
-    public function postListing(MenusListDataTable $menusListDataTable)
-    {
-        return do_filter('datatables.menu.index.post', $menusListDataTable, $this);
+            return $next($request);
+        });
     }
 
     /**
-     * Update page status
+     * @param MenusListDataTable $menusListDataTable
+     * @return mixed
+     */
+    public function getIndex(MenusListDataTable $menusListDataTable)
+    {
+        $this->setPageTitle(trans($this->module . '::base.menus_management'));
+
+        $this->dis['dataTable'] = $menusListDataTable->run();
+
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'index.get')->viewAdmin('list');
+    }
+
+    /**
+     * @param MenusListDataTable $menusListDataTable
+     * @return mixed
+     */
+    public function postListing(MenusListDataTable $menusListDataTable)
+    {
+        return do_filter(BASE_FILTER_CONTROLLER, $menusListDataTable, WEBED_MENUS, 'index.post', $this);
+    }
+
+    /**
+     * @param UpdateMenuAction $action
      * @param $id
      * @param $status
      * @return \Illuminate\Http\JsonResponse
      */
-    public function postUpdateStatus($id, $status)
+    public function postUpdateStatus(UpdateMenuAction $action, $id, $status)
     {
-        $data = [
+        $result = $action->run($id, [
             'status' => $status
-        ];
-        $result = $this->repository->editWithValidate($id, $data, false, true);
+        ]);
 
         return response()->json($result, $result['response_code']);
     }
@@ -67,54 +82,40 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
-        $this->setPageTitle('Create menu');
-        $this->breadcrumbs->addLink('Create menu');
+        do_action(BASE_ACTION_BEFORE_CREATE, WEBED_MENUS, 'create.get');
 
-        $this->dis['currentId'] = 0;
+        $this->setPageTitle(trans($this->module . '::base.create_menu'));
+        $this->breadcrumbs->addLink(trans($this->module . '::base.create_menu'));
 
-        $this->dis['object'] = $this->repository->getModel();
-        $oldInputs = old();
-        if ($oldInputs) {
-            foreach ($oldInputs as $key => $row) {
-                if($key === 'menu_structure') {
-                    $this->dis['menuStructure'] = $row;
-                } else {
-                    $this->dis['object']->$key = $row;
-                }
-            }
-        }
-
-        return do_filter('menus.create.get', $this)->viewAdmin('create');
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'create.get')->viewAdmin('create');
     }
 
-    public function postCreate(CreateMenuRequest $request)
+    /**
+     * @param CreateMenuRequest $request
+     * @param CreateMenuAction $action
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postCreate(CreateMenuRequest $request, CreateMenuAction $action)
     {
-        $data = [
-            'menu_structure' => $request->get('menu_structure'),
-            'deleted_nodes' => $request->get('deleted_nodes'),
-            'status' => $request->get('status'),
-            'title' => $request->get('title'),
-            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
-            'updated_by' => $this->loggedInUser->id,
-            'created_by' => $this->loggedInUser->id,
-        ];
+        $data = $this->parseData($request);
+        $data['created_by'] = $this->loggedInUser->id;
 
-        $result = $this->repository->createMenu($data);
+        $menuStructure = json_decode($this->request->get('menu_structure'), true);
+
+        $result = $action->run($data, $menuStructure);
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
-        $this->flashMessagesHelper
+        flash_messages()
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        if($result['error']) {
+        if ($result['error']) {
             return redirect()->back()->withInput();
         }
 
-        do_action('menus.after-create.post', $result['data']->id, $result, $this);
-
         if ($request->has('_continue_edit')) {
-            return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']->id]));
+            return redirect()->to(route('admin::menus.edit.get', ['id' => $result['data']['id']]));
         }
 
         return redirect()->to(route('admin::menus.index.get'));
@@ -129,14 +130,14 @@ class MenuController extends BaseAdminController
     {
         $item = $this->repository->getMenu($id);
         if (!$item) {
-            $this->flashMessagesHelper
-                ->addMessages('This menu not exists', 'danger')
+            flash_messages()
+                ->addMessages(trans($this->module . '::base.menu_not_exists'), 'danger')
                 ->showMessagesOnSession();
 
             return redirect()->back();
         }
 
-        $item = do_filter('menus.before-edit.get', $item);
+        $item = do_filter(BASE_FILTER_BEFORE_UPDATE, $item, WEBED_MENUS, 'edit.get');
 
         $this->assets
             ->addStylesheets('jquery-nestable')
@@ -144,54 +145,37 @@ class MenuController extends BaseAdminController
             ->addJavascripts('jquery-nestable')
             ->addJavascriptsDirectly(asset('admin/modules/menu/edit-menu.js'));
 
-        $this->setPageTitle('Edit menu', $item->title);
-        $this->breadcrumbs->addLink('Edit menu');
+        $this->setPageTitle(trans($this->module . '::base.edit_menu'), '#' . $item->id);
+        $this->breadcrumbs->addLink(trans($this->module . '::base.edit_menu'));
 
         $this->dis['menuStructure'] = json_encode($item->all_menu_nodes);
 
         $this->dis['object'] = $item;
-        $this->dis['currentId'] = $id;
 
-        return do_filter('menus.edit.get', $this, $id)->viewAdmin('edit');
+        return do_filter(BASE_FILTER_CONTROLLER, $this, WEBED_MENUS, 'edit.get', $id)->viewAdmin('edit');
     }
 
-    public function postEdit(UpdateMenuRequest $request, $id)
+    /**
+     * @param UpdateMenuRequest $request
+     * @param UpdateMenuAction $action
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postEdit(UpdateMenuRequest $request, UpdateMenuAction $action, $id)
     {
-        $item = $this->repository->find($id);
-        if (!$item) {
-            $this->flashMessagesHelper
-                ->addMessages('This menu not exists', 'danger')
-                ->showMessagesOnSession();
+        $data = $this->parseData($request);
+        $deletedNodes = json_decode($this->request->get('deleted_nodes'), true);
+        $menuStructure = json_decode($this->request->get('menu_structure'), true);
 
-            return redirect()->back();
-        }
-
-        $item = do_filter('menus.before-edit.get', $item);
-
-        $data = [
-            'menu_structure' => $request->get('menu_structure'),
-            'deleted_nodes' => $request->get('deleted_nodes'),
-            'status' => $request->get('status'),
-            'title' => $request->get('title'),
-            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
-            'updated_by' => $this->loggedInUser->id,
-        ];
-
-        $result = $this->repository->updateMenu($item, $data);
+        $result = $action->run($id, $data, $menuStructure, $deletedNodes);
 
         $msgType = $result['error'] ? 'danger' : 'success';
 
-        $this->flashMessagesHelper
+        flash_messages()
             ->addMessages($result['messages'], $msgType)
             ->showMessagesOnSession();
 
-        if($result['error']) {
-            return redirect()->back();
-        }
-
-        do_action('menus.after-edit.post', $id, $result, $this);
-
-        if ($request->has('_continue_edit')) {
+        if ($result['error'] || $this->request->has('_continue_edit')) {
             return redirect()->back();
         }
 
@@ -203,14 +187,26 @@ class MenuController extends BaseAdminController
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteDelete($id)
+    public function deleteDelete(DeleteMenuAction $action, $id)
     {
-        $id = do_filter('menus.before-delete.delete', $id);
-
-        $result = $this->repository->delete($id);
-
-        do_action('menus.after-delete.delete', $id, $result);
+        $result = $action->run($id);
 
         return response()->json($result, $result['response_code']);
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    protected function parseData(Request $request)
+    {
+        return [
+            'menu_structure' => $request->get('menu_structure'),
+            'deleted_nodes' => $request->get('deleted_nodes'),
+            'status' => $request->get('status'),
+            'title' => $request->get('title'),
+            'slug' => ($request->get('slug') ? str_slug($request->get('slug')) : str_slug($request->get('title'))),
+            'updated_by' => $this->loggedInUser->id,
+        ];
     }
 }

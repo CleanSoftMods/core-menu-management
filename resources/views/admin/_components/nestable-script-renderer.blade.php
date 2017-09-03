@@ -15,11 +15,11 @@
         <div class="item-details">
             <div class="fields">
                 <label data-field="title">
-                    <span class="text">Title</span>
+                    <span class="text">{{ trans('webed-menus::base.title') }}</span>
                     <input type="text" value="">
                 </label>
                 <label data-field="url">
-                    <span class="text">Url</span>
+                    <span class="text">{{ trans('webed-menus::base.url') }}</span>
                     <input type="text" value="">
                 </label>
                 <label data-field="css_class">
@@ -27,23 +27,22 @@
                     <input type="text" value="">
                 </label>
                 <label data-field="icon_font">
-                    <span class="text">Icon - font</span>
+                    <span class="text">Icon font</span>
                     <input type="text" value="">
                 </label>
                 <label data-field="target">
                     <span class="text">Target type</span>
                     <select>
-                        <option value="">Not set</option>
-                        <option value="_self">Self</option>
-                        <option value="_blank">Blank</option>
-                        <option value="_parent">Parent</option>
-                        <option value="_top">Top</option>
+                        <option value="">{{ trans('webed-menus::base.target_type.not_set') }}</option>
+                        <option value="_self">{{ trans('webed-menus::base.target_type.self') }}</option>
+                        <option value="_blank">{{ trans('webed-menus::base.target_type.blank') }}</option>
+                        <option value="_parent">{{ trans('webed-menus::base.target_type.parent') }}</option>
+                        <option value="_top">{{ trans('webed-menus::base.target_type.top') }}</option>
                     </select>
                 </label>
             </div>
             <div class="text-right">
-                <a href="#" title="" class="btn red btn-remove btn-sm">Remove</a>
-                <a href="#" title="" class="btn blue btn-cancel btn-sm">Cancel</a>
+                <a href="#" title="" class="btn red btn-remove btn-sm">{{ trans('webed-menus::base.remove') }}</a>
             </div>
         </div>
         <div class="clearfix"></div>

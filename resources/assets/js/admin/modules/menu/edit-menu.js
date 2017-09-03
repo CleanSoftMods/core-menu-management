@@ -1,29 +1,29 @@
 // Init
-var WebEdManageMenu = function () {
+let WebEdManageMenu = function () {
     "use strict";
 
-    var $body = $('body');
+    let $body = $('body');
 
-    var $_TARGET = $('.nestable-menu');
+    let $_TARGET = $('.nestable-menu');
 
-    var $_UPDATE_TO = $('#menu_structure');
+    let $_UPDATE_TO = $('#menu_structure');
 
-    var $_DELETED_NODES = $('#deleted_nodes');
+    let $_DELETED_NODES = $('#deleted_nodes');
 
-    var DELETED_NODES = [];
+    let DELETED_NODES = [];
 
-    var handleItems = function () {
+    let handleItems = function () {
         /**
          * The templates
          */
-        var MENU_NESTABLE_TEMPLATES = {
+        let MENU_NESTABLE_TEMPLATES = {
             listGroup: $('#menus_template_list_group').html(),
             listItem: $('#menus_template_list_item').html(),
         };
 
-        var MENU_DATA = json_decode($_UPDATE_TO.val(), []);
+        let MENU_DATA = Helpers.jsonDecode($_UPDATE_TO.val(), []);
 
-        var initNestable = function () {
+        let initNestable = function () {
             /**
              * Init nestable
              */
@@ -35,7 +35,7 @@ var WebEdManageMenu = function () {
             });
         };
 
-        var handleDetails = function () {
+        let handleDetails = function () {
             /**
              * Toggle item details
              */
@@ -50,72 +50,73 @@ var WebEdManageMenu = function () {
              */
             $body.on('change keyup', '.dd-item .item-details .fields input[type=text], .dd-item .item-details .fields select', function (event) {
                 event.preventDefault();
-                var $current = $(this);
-                var $label = $current.closest('label'),
+                let $current = $(this);
+                let $label = $current.closest('label'),
                     $currentItem = $current.closest('.dd-item');
                 $currentItem.data($label.attr('data-field'), $current.val());
             });
         };
 
-        var renderListGroup = function (data) {
-            var $listGroup = $(MENU_NESTABLE_TEMPLATES.listGroup);
-            data.forEach(function (value, index) {
+        let renderListGroup = function (data) {
+            let $listGroup = $(MENU_NESTABLE_TEMPLATES.listGroup);
+            _.each(data, function (value, index) {
                 $listGroup.append(renderListItem(value));
             });
+
             return $listGroup;
         };
 
-        var renderListItem = function (data) {
-            var listItem = MENU_NESTABLE_TEMPLATES.listItem;
-            var itemType = array_get(data, 'type', '');
+        let renderListItem = function (data) {
+            let listItem = MENU_NESTABLE_TEMPLATES.listItem;
+            let itemType = Helpers.arrayGet(data, 'type', '');
 
-            var title = array_get(data, 'title');
-            if (!array_length(title)) {
-                title = array_get(data, 'model_title', '');
+            let title = Helpers.arrayGet(data, 'title');
+            if (!_.size(title)) {
+                title = Helpers.arrayGet(data, 'model_title', '');
             }
 
             listItem = listItem.replace(/__title__/gi, title);
             listItem = listItem.replace(/__type__/gi, itemType);
-            var $listItem = $(listItem);
+            let $listItem = $(listItem);
 
-            $listItem.find('[data-field=title] input[type=text]').val(array_get(data, 'title', ''));
-            $listItem.find('[data-field=icon_font] input[type=text]').val(array_get(data, 'icon_font', ''));
-            $listItem.find('[data-field=css_class] input[type=text]').val(array_get(data, 'css_class', ''));
-            $listItem.find('[data-field=target] select').val(array_get(data, 'target', ''));
+            $listItem.find('[data-field=title] input[type=text]').val(Helpers.arrayGet(data, 'title', ''));
+            $listItem.find('[data-field=icon_font] input[type=text]').val(Helpers.arrayGet(data, 'icon_font', ''));
+            $listItem.find('[data-field=css_class] input[type=text]').val(Helpers.arrayGet(data, 'css_class', ''));
+            $listItem.find('[data-field=target] select').val(Helpers.arrayGet(data, 'target', ''));
 
             if (itemType !== 'custom-link') {
                 $listItem.find('[data-field=url]').remove();
                 $listItem.data('url', null);
             } else {
-                $listItem.find('[data-field=url] input[type=text]').val(array_get(data, 'url', ''));
-                $listItem.data('url', array_get(data, 'url', null));
+                $listItem.find('[data-field=url] input[type=text]').val(Helpers.arrayGet(data, 'url', ''));
+                $listItem.data('url', Helpers.arrayGet(data, 'url', null));
             }
 
-            $listItem.data('id', array_get(data, 'id', ''));
-            $listItem.data('related_id', array_get(data, 'related_id', ''));
-            $listItem.data('type', array_get(data, 'type', ''));
-            $listItem.data('title', array_get(data, 'title', ''));
-            $listItem.data('model_title', array_get(data, 'model_title', ''));
-            $listItem.data('icon_font', array_get(data, 'icon_font', ''));
-            $listItem.data('css_class', array_get(data, 'css_class', ''));
-            $listItem.data('target', array_get(data, 'target', ''));
+            $listItem.data('id', Helpers.arrayGet(data, 'id', ''));
+            $listItem.data('entity_id', Helpers.arrayGet(data, 'entity_id', ''));
+            $listItem.data('type', Helpers.arrayGet(data, 'type', ''));
+            $listItem.data('title', Helpers.arrayGet(data, 'title', ''));
+            $listItem.data('model_title', Helpers.arrayGet(data, 'model_title', ''));
+            $listItem.data('icon_font', Helpers.arrayGet(data, 'icon_font', ''));
+            $listItem.data('css_class', Helpers.arrayGet(data, 'css_class', ''));
+            $listItem.data('target', Helpers.arrayGet(data, 'target', ''));
 
-            if (array_get(data, 'children', [])) {
-                $listItem.append(renderListGroup(array_get(data, 'children')));
+            if (Helpers.arrayGet(data, 'children', [])) {
+                $listItem.append(renderListGroup(Helpers.arrayGet(data, 'children')));
             }
             return $listItem;
         };
 
-        var renderMenu = function () {
+        let renderMenu = function () {
             $_TARGET.append(renderListGroup(MENU_DATA));
         };
 
-        var handleAddNew = function () {
+        let handleAddNew = function () {
             /**
              * Determine when the list group exists
              * If not exists, create new
              */
-            if (!array_length($_TARGET.find('> .dd-list'))) {
+            if (!_.size($_TARGET.find('> .dd-list'))) {
                 $_TARGET.append($(MENU_NESTABLE_TEMPLATES.listGroup));
             }
 
@@ -124,7 +125,7 @@ var WebEdManageMenu = function () {
              */
             $body.on('click', '.box-link-menus .add-item', function (event) {
                 event.preventDefault();
-                var $box = $(this).closest('.box-link-menus');
+                let $box = $(this).closest('.box-link-menus');
 
                 switch ($box.data('type')) {
                     case 'custom-link':
@@ -136,10 +137,10 @@ var WebEdManageMenu = function () {
                 }
             });
 
-            var addCustomLink = function ($_box) {
-                var data = {
+            let addCustomLink = function ($_box) {
+                let data = {
                     id: null,
-                    related_id: null,
+                    entity_id: null,
                     type: $_box.data('type'),
                     title: $_box.find('input[type=text][data-field=title]').val(),
                     model_title: null,
@@ -158,17 +159,17 @@ var WebEdManageMenu = function () {
                 return renderListItem(data);
             };
 
-            var addOtherLinks = function ($_box) {
-                var globalData = {
+            let addOtherLinks = function ($_box) {
+                let globalData = {
                     id: null,
                     type: $_box.data('type'),
                 };
-                var data = [];
+                let data = [];
                 $_box.find('input[type=checkbox]:checked').each(function () {
-                    var $current = $(this);
-                    var $label = $current.closest('label');
-                    var currentData = $.extend(true, {
-                        related_id: $current.val(),
+                    let $current = $(this);
+                    let $label = $current.closest('label');
+                    let currentData = $.extend(true, {
+                        entity_id: $current.val(),
                         title: null,
                         model_title: $label.text().trim(),
                         url: '',
@@ -184,15 +185,15 @@ var WebEdManageMenu = function () {
             }
         };
 
-        var handleRemove = function () {
+        let handleRemove = function () {
             /**
              * Remove node
              */
             $body.on('click', '.dd-item .item-details .btn-remove', function (event) {
                 event.preventDefault();
-                var $parent = $(this).closest('.dd-item');
-                var $childs = $parent.find('> .dd-list > .dd-item');
-                if (array_length($childs)) {
+                let $parent = $(this).closest('.dd-item');
+                let $childs = $parent.find('> .dd-list > .dd-item');
+                if (_.size($childs)) {
                     $parent.after($childs);
                 }
                 DELETED_NODES.push($parent.data('id'));
@@ -210,11 +211,11 @@ var WebEdManageMenu = function () {
         handleRemove();
     };
 
-    var exportData = function () {
+    let exportData = function () {
         /**
          * Serialize data from nestable
          */
-        var serializeData = function () {
+        let serializeData = function () {
             return $_TARGET.nestable('serialize');
         };
 
@@ -223,8 +224,8 @@ var WebEdManageMenu = function () {
          */
         $body.on('submit', $_TARGET.closest('form'), function (event) {
             //event.preventDefault();
-            $_UPDATE_TO.val(json_encode(serializeData()));
-            $_DELETED_NODES.val(json_encode(DELETED_NODES));
+            $_UPDATE_TO.val(Helpers.jsonEncode(serializeData()));
+            $_DELETED_NODES.val(Helpers.jsonEncode(DELETED_NODES));
         });
     };
 

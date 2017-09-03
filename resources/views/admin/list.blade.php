@@ -1,6 +1,6 @@
 @extends('webed-core::admin._master')
 
-@section('css')
+@section('head')
 
 @endsection
 
@@ -19,12 +19,12 @@
                 <div class="box-header with-border">
                     <h3 class="box-title">
                         <i class="icon-layers font-dark"></i>
-                        All menus
+                        {{ trans('webed-menus::base.all_menus') }}
                     </h3>
                     <div class="box-tools">
                         <a class="btn btn-transparent green btn-sm"
                            href="{{ route('admin::menus.create.get') }}">
-                            <i class="fa fa-plus"></i> Create
+                            <i class="fa fa-plus"></i> {{ trans('webed-core::base.form.create') }}
                         </a>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                     {!! $dataTable or '' !!}
                 </div>
             </div>
-            @php do_action('meta_boxes', 'main', 'webed-menus.index') @endphp
+            @php do_action(BASE_ACTION_META_BOXES, 'main', WEBED_MENUS . '.index', null) @endphp
         </div>
     </div>
 @endsection

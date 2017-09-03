@@ -1,6 +1,7 @@
-<?php namespace WebEd\Base\Menu\Facades;
+<?php namespace CleanSoft\Modules\Core\Menu\Facades;
 
 use Illuminate\Support\Facades\Facade;
+use CleanSoft\Modules\Core\Menu\Support\DashboardMenu;
 
 class DashboardMenuFacade extends Facade
 {
@@ -9,6 +10,6 @@ class DashboardMenuFacade extends Facade
      */
     protected static function getFacadeAccessor()
     {
-        return \WebEd\Base\Menu\Support\DashboardMenu::class;
+        return DashboardMenu::class;
     }
 }

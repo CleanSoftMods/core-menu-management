@@ -24,7 +24,7 @@
             </a>
             @if($hasChildren)
                 <ul class="sub-menu treeview-menu">
-                    @include('webed-menu::admin.dashboard-menu.menu', [
+                    @include('webed-menus::admin.dashboard-menu.menu', [
                         'links' => $link['children'],
                         'isChildren' => true,
                         'level' => ($level + 1),

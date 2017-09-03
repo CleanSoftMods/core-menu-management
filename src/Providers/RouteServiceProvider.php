@@ -1,21 +1,18 @@
-<?php namespace WebEd\Base\Menu\Providers;
+<?php namespace CleanSoft\Modules\Core\Menu\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    protected $namespace = 'WebEd\Base\Menu\Http\Controllers';
+    protected $namespace = 'CleanSoft\Modules\Core\Menu\Http\Controllers';
 
-    public function map()
+    public function boot()
     {
-        Route::middleware('web')
-            ->namespace($this->namespace)
-            ->group(__DIR__ . '/../../routes/web.php');
-
-        Route::prefix(config('webed.api_route', 'api'))
-            ->middleware('api')
-            ->namespace($this->namespace)
-            ->group(__DIR__ . '/../../routes/api.php');
+        $this->app->booted(function () {
+            Route::middleware('web')
+                ->namespace($this->namespace)
+                ->group(__DIR__ . '/../../routes/web.php');
+        });
     }
 }

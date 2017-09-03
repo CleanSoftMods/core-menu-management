@@ -1,7 +1,7 @@
-<?php namespace WebEd\Base\Menu\Facades;
+<?php namespace CleanSoft\Modules\Core\Menu\Facades;
 
 use Illuminate\Support\Facades\Facade;
-use WebEd\Base\Menu\Support\MenuManagement;
+use CleanSoft\Modules\Core\Menu\Support\MenuManagement;
 
 class MenuManagementFacade extends Facade
 {

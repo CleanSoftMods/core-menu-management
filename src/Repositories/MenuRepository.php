@@ -1,31 +1,14 @@
-<?php namespace WebEd\Base\Menu\Repositories;
+<?php namespace CleanSoft\Modules\Core\Menu\Repositories;
 
-use WebEd\Base\Core\Models\Contracts\BaseModelContract;
-use WebEd\Base\Core\Repositories\AbstractBaseRepository;
-use WebEd\Base\Caching\Services\Contracts\CacheableContract;
+use Illuminate\Support\Facades\DB;
+use CleanSoft\Modules\Core\Menu\Models\Menu;
+use CleanSoft\Modules\Core\Models\Contracts\BaseModelContract;
+use CleanSoft\Modules\Core\Repositories\Eloquent\EloquentBaseRepository;
+use CleanSoft\Modules\Core\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
+use CleanSoft\Modules\Core\Menu\Repositories\Contracts\MenuRepositoryContract;
 
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
-use WebEd\Base\Menu\Repositories\Contracts\MenuNodeRepositoryContract;
-use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
-
-class MenuRepository extends AbstractBaseRepository implements MenuRepositoryContract, CacheableContract
+class MenuRepository extends EloquentBaseRepository implements MenuRepositoryContract
 {
-    protected $rules = [
-        'title' => 'string|max:255|required',
-        'slug' => 'string|max:255|alpha_dash|required',
-        'status' => 'string|required|in:activated,disabled',
-        'created_by' => 'integer|min:0|nullable',
-        'updated_by' => 'integer|min:0|nullable',
-    ];
-
-    protected $editableFields = [
-        'title',
-        'slug',
-        'status',
-        'created_by',
-        'updated_by',
-    ];
-
     /**
      * @var MenuNodeRepository|MenuNodeRepositoryCacheDecorator
      */
@@ -39,68 +22,69 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
     }
 
     /**
-     * Create menu
-     * @param $data
-     * @return array
+     * @param array $data
+     * @param array|null $menuStructure
+     * @return int|null
      */
-    public function createMenu($data)
+    public function createMenu(array $data, array $menuStructure = null)
     {
-        return $this->updateMenu(0, $data, true, false);
+        $result = $this->create($data);
+        if (!$result || !$menuStructure) {
+            return $result;
+        }
+        DB::beginTransaction();
+        if ($menuStructure !== null) {
+            $this->updateMenuStructure($result, $menuStructure);
+        }
+        DB::commit();
+        return $result;
     }
 
     /**
-     * Update menu
-     * @param $id
-     * @param $data
-     * @param bool $allowCreateNew
-     * @param bool $justUpdateSomeFields
-     * @return array
+     * @param Menu|int $id
+     * @param array $data
+     * @param array|null $menuStructure
+     * @param array|null $deletedNodes
+     * @return int|null
      */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true)
+    public function updateMenu($id, array $data, array $menuStructure = null, array $deletedNodes = null)
     {
-        $menuStructure = array_get($data, 'menu_structure');
-        $deletedNodes = json_decode(array_get($data, 'deleted_nodes', '[]'));
-        array_forget($data, ['menu_structure', 'deleted_nodes']);
+        $result = $this->update($id, $data);
 
+        if (!$result || !$menuStructure) {
+            return $result;
+        }
+        DB::beginTransaction();
         if($deletedNodes) {
             $this->menuNodeRepository->delete($deletedNodes);
         }
 
-        $result = $this->editWithValidate($id, $data, $allowCreateNew, $justUpdateSomeFields);
-
-        if ($result['error'] || !$menuStructure) {
-            return $result;
+        if ($menuStructure !== null) {
+            $this->updateMenuStructure($result, $menuStructure);
         }
-
-        $this->updateMenuStructure($result['data']->id, $menuStructure);
+        DB::commit();
 
         return $result;
     }
 
     /**
-     * Update menu structure
-     * @param $menuId
-     * @param $menuStructure
+     * @param int $menuId
+     * @param array $menuStructure
      */
-    public function updateMenuStructure($menuId, $menuStructure)
+    public function updateMenuStructure($menuId, array $menuStructure)
     {
-        if (!is_array($menuStructure)) {
-            $menuStructure = json_decode($menuStructure, true);
-        }
-
         foreach ($menuStructure as $order => $node) {
             $this->menuNodeRepository->updateMenuNode($menuId, $node, $order);
         }
     }
 
     /**
-     * Get menu
-     * @param $id
-     * @return mixed|null|MenuModelContract
+     * @param Menu|int $id
+     * @return \Illuminate\Database\Eloquent\Builder|null|Menu|\CleanSoft\Modules\Core\Models\EloquentBase
      */
     public function getMenu($id)
     {
-        if($id instanceof MenuModelContract) {
+        if($id instanceof Menu) {
             $menu = $id;
         } else {
             $menu = $this->find($id);
@@ -109,40 +93,8 @@ class MenuRepository extends AbstractBaseRepository implements MenuRepositoryCon
             return null;
         }
 
-        $menu->all_menu_nodes = $this->getMenuNodes($menu);
+        $menu->all_menu_nodes = $this->menuNodeRepository->getMenuNodes($menu);
 
         return $menu;
-    }
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null)
-    {
-        if($menuId instanceof MenuModelContract) {
-            $menu = $menuId;
-        } else {
-            $menu = $this->find($menuId);
-        }
-        if(!$menu) {
-            return null;
-        }
-
-        $nodes = $this->menuNodeRepository
-            ->orderBy('sort_order', 'ASC')
-            ->where('menu_id', '=', $menuId->id)
-            ->where('parent_id', '=', $parentId)
-            ->select('id', 'menu_id', 'parent_id', 'related_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target')
-            ->get();
-
-        foreach ($nodes as &$node) {
-            $node->model_title = $node->title;
-            $node->children = $this->getMenuNodes($menuId, $node->id);
-        }
-
-        return $nodes;
     }
 }

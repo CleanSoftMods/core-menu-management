@@ -1,7 +1,7 @@
-<?php namespace WebEd\Base\Menu\Models;
+<?php namespace CleanSoft\Modules\Core\Menu\Models;
 
-use WebEd\Base\Menu\Models\Contracts\MenuNodeModelContract;
-use WebEd\Base\Core\Models\EloquentBase as BaseModel;
+use CleanSoft\Modules\Core\Menu\Models\Contracts\MenuNodeModelContract;
+use CleanSoft\Modules\Core\Models\EloquentBase as BaseModel;
 
 class MenuNode extends BaseModel implements MenuNodeModelContract
 {
@@ -9,7 +9,9 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
 
     protected $primaryKey = 'id';
 
-    protected $fillable = [];
+    protected $fillable = [
+        'menu_id', 'parent_id', 'entity_id', 'type', 'url', 'title', 'icon_font', 'css_class', 'target', 'order',
+    ];
 
     public $timestamps = true;
 
@@ -44,12 +46,12 @@ class MenuNode extends BaseModel implements MenuNodeModelContract
         return array_get($this->relatedModelInfo, 'url');
     }
 
-    private function resolveRelatedModel()
+    protected function resolveRelatedModel()
     {
         if ($this->type === 'custom-link') {
             return null;
         }
-        $this->relatedModelInfo = menus_management()->getObjectInfoByType($this->type, $this->related_id);
+        $this->relatedModelInfo = menus_management()->getObjectInfoByType($this->type, $this->entity_id);
 
         return $this->relatedModelInfo;
     }

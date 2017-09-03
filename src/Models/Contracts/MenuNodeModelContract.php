@@ -1,4 +1,4 @@
-<?php namespace WebEd\Base\Menu\Models\Contracts;
+<?php namespace CleanSoft\Modules\Core\Menu\Models\Contracts;
 
 interface MenuNodeModelContract
 {

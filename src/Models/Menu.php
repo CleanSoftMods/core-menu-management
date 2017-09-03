@@ -1,7 +1,7 @@
-<?php namespace WebEd\Base\Menu\Models;
+<?php namespace CleanSoft\Modules\Core\Menu\Models;
 
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
-use WebEd\Base\Core\Models\EloquentBase as BaseModel;
+use CleanSoft\Modules\Core\Menu\Models\Contracts\MenuModelContract;
+use CleanSoft\Modules\Core\Models\EloquentBase as BaseModel;
 
 class Menu extends BaseModel implements MenuModelContract
 {
@@ -9,7 +9,9 @@ class Menu extends BaseModel implements MenuModelContract
 
     protected $primaryKey = 'id';
 
-    protected $fillable = [];
+    protected $fillable = [
+        'title', 'slug', 'status', 'created_by', 'updated_by',
+    ];
 
     public $timestamps = true;
 }

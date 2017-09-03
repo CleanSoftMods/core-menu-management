@@ -1,7 +1,7 @@
-<?php namespace WebEd\Base\Menu\Support;
+<?php namespace CleanSoft\Modules\Core\Menu\Support;
 
 use Illuminate\Support\Collection;
-use WebEd\Base\Users\Models\User;
+use CleanSoft\Modules\Core\Users\Models\User;
 
 class DashboardMenu
 {
@@ -64,15 +64,6 @@ class DashboardMenu
             $calledClass = debug_backtrace()[2];
             throw new \RuntimeException('Menu id not specified: ' . $calledClass['class'] . '@' . $calledClass['function']);
         }
-        if (isset($this->links[$id])) {
-            $calledClass = debug_backtrace()[2];
-            throw new \RuntimeException('Menu id already exists: ' . $id . ' on class ' . $calledClass['class'] . '@' . $calledClass['function']);
-        }
-        $parentId = $options['parent_id'];
-        if ($parentId && !isset($this->links[$parentId])) {
-            $calledClass = debug_backtrace()[2];
-            throw new \RuntimeException('Parent id not exists: ' . $id . ' on class ' . $calledClass['class'] . '@' . $calledClass['function']);
-        }
 
         $this->links[$id] = $options;
 
@@ -80,12 +71,15 @@ class DashboardMenu
     }
 
     /**
-     * @param $id
+     * @param array|string $id
      * @return $this
      */
     public function removeItem($id)
     {
-        array_forget($this->links, $id);
+        $id = is_array($id) ? $id : func_get_args();
+        foreach ($id as $item) {
+            array_forget($this->links, $item);
+        }
 
         return $this;
     }
@@ -152,7 +146,7 @@ class DashboardMenu
     public function render()
     {
         $links = $this->rearrangeLinks();
-        return view('webed-menu::admin.dashboard-menu.menu', [
+        return view('webed-menus::admin.dashboard-menu.menu', [
             'isChildren' => false,
             'links' => $links,
             'level' => 0,

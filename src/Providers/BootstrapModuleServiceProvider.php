@@ -1,46 +1,38 @@
-<?php namespace WebEd\Base\Menu\Providers;
+<?php namespace CleanSoft\Modules\Core\Menu\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
-use WebEd\Base\Menu\Repositories\MenuRepository;
+use CleanSoft\Modules\Core\Events\SessionStarted;
+use CleanSoft\Modules\Core\Menu\Repositories\Contracts\MenuRepositoryContract;
 
 class BootstrapModuleServiceProvider extends ServiceProvider
 {
-    protected $module = 'WebEd\Base\Menu';
-
     /**
-     * Bootstrap the application services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        app()->booted(function () {
-            $this->booted();
-        });
-    }
-
-    /**
-     * Register the application services.
+     * Register any application services.
      *
      * @return void
      */
     public function register()
     {
-
+        Event::listen(SessionStarted::class, function () {
+            $this->onSessionStarted();
+        });
     }
 
-    private function booted()
+    /**
+     * Register dashboard menus, translations, cms settings
+     */
+    protected function onSessionStarted()
     {
         /**
          * Register to dashboard menu
          */
-        \DashboardMenu::registerItem([
-            'id' => 'webed-menu',
+        dashboard_menu()->registerItem([
+            'id' => 'webed-menus',
             'priority' => 20,
             'parent_id' => null,
             'heading' => null,
-            'title' => 'Menus',
+            'title' => trans('webed-menus::base.menus'),
             'font_icon' => 'fa fa-bars',
             'link' => route('admin::menus.index.get'),
             'css_class' => null,
@@ -52,28 +44,26 @@ class BootstrapModuleServiceProvider extends ServiceProvider
                 'group' => 'basic',
                 'type' => 'select',
                 'priority' => 3,
-                'label' => 'Main menu',
-                'helper' => 'Main menu of our website'
+                'label' => trans('webed-menus::base.settings.main_menu.label'),
+                'helper' => trans('webed-menus::base.settings.main_menu.helper'),
             ], function () {
-                /**
-                 * @var MenuRepository $menus
-                 */
-                $menus = app(MenuRepositoryContract::class);
-                $menus = $menus->where('status', '=', 'activated')
-                    ->get();
-
-                $menusArr = [];
-
-                foreach ($menus as $menu) {
-                    $menusArr[$menu->slug] = $menu->title;
-                }
+                $menus = app(MenuRepositoryContract::class)
+                    ->getWhere(['status' => 1], ['slug', 'title'])
+                    ->pluck('title', 'slug')
+                    ->toArray();
 
                 return [
                     'main_menu',
-                    $menusArr,
-                    get_settings('main_menu'),
+                    $menus,
+                    get_setting('main_menu'),
                     ['class' => 'form-control']
                 ];
             });
+
+        admin_quick_link()->register('menu', [
+            'title' => trans('webed-menus::base.menu'),
+            'url' => route('admin::menus.create.get'),
+            'icon' => 'fa fa-bars',
+        ]);
     }
 }

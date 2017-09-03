@@ -1,62 +1,48 @@
-<?php namespace WebEd\Base\Menu\Repositories;
+<?php namespace CleanSoft\Modules\Core\Menu\Repositories;
 
-use WebEd\Base\Caching\Repositories\AbstractRepositoryCacheDecorator;
+use CleanSoft\Modules\Core\Menu\Models\Menu;
+use CleanSoft\Modules\Core\Repositories\Eloquent\EloquentBaseRepositoryCacheDecorator;
 
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
-use WebEd\Base\Menu\Repositories\Contracts\MenuRepositoryContract;
+use CleanSoft\Modules\Core\Menu\Repositories\Contracts\MenuRepositoryContract;
 
-class MenuRepositoryCacheDecorator extends AbstractRepositoryCacheDecorator  implements MenuRepositoryContract
+class MenuRepositoryCacheDecorator extends EloquentBaseRepositoryCacheDecorator  implements MenuRepositoryContract
 {
     /**
-     * Create menu
-     * @param $data
-     * @return array
+     * @param array $data
+     * @param array|null $menuStructure
+     * @return int|null
      */
-    public function createMenu($data)
+    public function createMenu(array $data, array $menuStructure = null)
     {
         return $this->afterUpdate(__FUNCTION__, func_get_args());
     }
 
     /**
-     * Update menu
      * @param $id
-     * @param $data
-     * @param bool $allowCreateNew
-     * @param bool $justUpdateSomeFields
-     * @return array
+     * @param array $data
+     * @param array|null $menuStructure
+     * @param array|null $deletedNodes
+     * @return int|null
      */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true)
+    public function updateMenu($id, array $data, array $menuStructure = null, array $deletedNodes = null)
     {
         return $this->afterUpdate(__FUNCTION__, func_get_args());
     }
 
     /**
-     * Update menu structure
      * @param $menuId
-     * @param $menuStructure
+     * @param array $menuStructure
      */
-    public function updateMenuStructure($menuId, $menuStructure)
+    public function updateMenuStructure($menuId, array $menuStructure)
     {
         return $this->afterUpdate(__FUNCTION__, func_get_args());
     }
 
     /**
-     * Get menu
-     * @param $id
-     * @return mixed|null|MenuModelContract
+     * @param Menu|int $id
+     * @return \Illuminate\Database\Eloquent\Builder|null|Menu|\CleanSoft\Modules\Core\Models\EloquentBase
      */
     public function getMenu($id)
-    {
-        return $this->beforeGet(__FUNCTION__, func_get_args());
-    }
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null)
     {
         return $this->beforeGet(__FUNCTION__, func_get_args());
     }

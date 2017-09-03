@@ -1,22 +1,10 @@
-<?php namespace WebEd\Base\Menu\Providers;
+<?php namespace CleanSoft\Modules\Core\Menu\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
 class InstallModuleServiceProvider extends ServiceProvider
 {
-    protected $module = 'WebEd\Base\Menu';
-
-    /**
-     * Bootstrap the application services.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        app()->booted(function () {
-            $this->booted();
-        });
-    }
+    protected $module = WEBED_MENUS;
 
     /**
      * Register the application services.
@@ -24,11 +12,6 @@ class InstallModuleServiceProvider extends ServiceProvider
      * @return void
      */
     public function register()
-    {
-
-    }
-
-    private function booted()
     {
         acl_permission()
             ->registerPermission('View menus', 'view-menus', $this->module)

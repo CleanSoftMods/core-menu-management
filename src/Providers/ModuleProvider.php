@@ -1,8 +1,6 @@
-<?php namespace WebEd\Base\Menu\Providers;
+<?php namespace CleanSoft\Modules\Core\Menu\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use WebEd\Base\Menu\Facades\DashboardMenuFacade;
-use WebEd\Base\Menu\Facades\MenuManagementFacade;
 
 class ModuleProvider extends ServiceProvider
 {
@@ -14,17 +12,15 @@ class ModuleProvider extends ServiceProvider
     public function boot()
     {
         /*Load views*/
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'webed-menu');
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'webed-menus');
         /*Load translations*/
-        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'webed-menu');
-        /*Load migrations*/
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+        $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'webed-menus');
 
         $this->publishes([
-            __DIR__ . '/../../resources/views' => config('view.paths')[0] . '/vendor/webed-menu',
+            __DIR__ . '/../../resources/views' => config('view.paths')[0] . '/vendor/webed-menus',
         ], 'views');
         $this->publishes([
-            __DIR__ . '/../../resources/lang' => base_path('resources/lang/vendor/webed-menu'),
+            __DIR__ . '/../../resources/lang' => base_path('resources/lang/vendor/webed-menus'),
         ], 'lang');
         $this->publishes([
             __DIR__ . '/../../resources/assets' => resource_path('assets'),
@@ -47,10 +43,5 @@ class ModuleProvider extends ServiceProvider
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(RepositoryServiceProvider::class);
         $this->app->register(BootstrapModuleServiceProvider::class);
-
-        //Register related facades
-        $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-        $loader->alias('MenuManagement', MenuManagementFacade::class);
-        $loader->alias('DashboardMenu', DashboardMenuFacade::class);
     }
 }

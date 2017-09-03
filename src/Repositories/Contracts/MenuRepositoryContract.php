@@ -1,45 +1,34 @@
-<?php namespace WebEd\Base\Menu\Repositories\Contracts;
+<?php namespace CleanSoft\Modules\Core\Menu\Repositories\Contracts;
 
-use WebEd\Base\Menu\Models\Contracts\MenuModelContract;
+use CleanSoft\Modules\Core\Menu\Models\Contracts\MenuModelContract;
 
 interface MenuRepositoryContract
 {
     /**
-     * Create menu
-     * @param $data
-     * @return array
+     * @param array $data
+     * @param array|null $menuStructure
+     * @return int|null
      */
-    public function createMenu($data);
+    public function createMenu(array $data, array $menuStructure = null);
 
     /**
-     * Update menu
-     * @param $id
-     * @param $data
-     * @param bool $allowCreateNew
-     * @param bool $justUpdateSomeFields
-     * @return array
+     * @param MenuModelContract|int $id
+     * @param array $data
+     * @param array|null $menuStructure
+     * @param array|null $deletedNodes
+     * @return int|null
      */
-    public function updateMenu($id, $data, $allowCreateNew = false, $justUpdateSomeFields = true);
+    public function updateMenu($id, array $data, array $menuStructure = null, array $deletedNodes = null);
 
     /**
-     * Update menu structure
-     * @param $menuId
-     * @param $menuStructure
+     * @param int $menuId
+     * @param array $menuStructure
      */
-    public function updateMenuStructure($menuId, $menuStructure);
+    public function updateMenuStructure($menuId, array $menuStructure);
 
     /**
-     * Get menu
-     * @param $id
-     * @return mixed|null|MenuModelContract
+     * @param MenuModelContract|int $id
+     * @return \Illuminate\Database\Eloquent\Builder|null|MenuModelContract|\CleanSoft\Modules\Core\Models\EloquentBase
      */
     public function getMenu($id);
-
-    /**
-     * Get menu nodes
-     * @param $menuId
-     * @param null $parentId
-     * @return mixed|null
-     */
-    public function getMenuNodes($menuId, $parentId = null);
 }

@@ -1,4 +1,4 @@
-<?php namespace WebEd\Base\Menu\Support;
+<?php namespace CleanSoft\Modules\Core\Menu\Support;
 
 class MenuManagement
 {
@@ -20,7 +20,7 @@ class MenuManagement
      */
     public function registerWidget($title, $type, $data)
     {
-        $this->widgetBoxes[] = [
+        $this->widgetBoxes[$type] = [
             'title' => $title,
             'type' => $type,
             'data' => $data,
@@ -49,7 +49,7 @@ class MenuManagement
             if (!is_array($widget['data']) || !$widget['data']) {
                 continue;
             }
-            $result[] = view('webed-menu::admin._components.widget', [
+            $result[] = view('webed-menus::admin._components.widget', [
                 'type' => $widget['type'],
                 'title' => $widget['title'],
                 'data' => $widget['data'],
